@@ -10,12 +10,33 @@ from launch_ros.substitutions import FindPackageShare
 from launch import LaunchDescription
 from launch.actions import DeclareLaunchArgument
 from launch.conditions import IfCondition
+from launch.substitution import Substitution
 from launch.substitutions import (
     Command,
     FindExecutable,
     LaunchConfiguration,
     PathJoinSubstitution,
 )
+
+
+class ResolvePackageURIs(Substitution):
+    """Converts package://pkg/... to file:///absolute/path/... so Gazebo can find meshes."""
+
+    _PACKAGES = ["annin_ar4_description", "annin_ar4_driver"]
+
+    def __init__(self, content: Substitution):
+        super().__init__()
+        self._content = content
+
+    def perform(self, context):
+        urdf = self._content.perform(context)
+        for pkg in self._PACKAGES:
+            try:
+                share = get_package_share_directory(pkg)
+                urdf = urdf.replace(f"package://{pkg}", f"file://{share}")
+            except Exception:
+                pass
+        return urdf
 
 
 def load_yaml(package_name, file_name):
@@ -77,7 +98,7 @@ def generate_launch_description():
             description="Run moveit2 servo",
         ))
 
-    robot_description_content = Command([
+    robot_description_content = ResolvePackageURIs(Command([
         PathJoinSubstitution([FindExecutable(name="xacro")]),
         " ",
         PathJoinSubstitution([
@@ -92,7 +113,7 @@ def generate_launch_description():
         " ",
         "include_gripper:=",
         include_gripper,
-    ])
+    ]))
     robot_description = {"robot_description": robot_description_content}
 
     # MoveIt Configuration

@@ -5,6 +5,7 @@ from ament_index_python.packages import get_package_share_directory
 from launch import LaunchDescription
 from launch.actions import DeclareLaunchArgument
 from launch.actions import IncludeLaunchDescription
+from launch.actions import OpaqueFunction
 from launch.launch_description_sources import PythonLaunchDescriptionSource
 from launch.substitution import Substitution
 from launch.substitutions import (
@@ -41,6 +42,31 @@ class ControllerConfigSubstitution(Substitution):
         return temp_file.name
 
 
+class ResolvePackageURIs(Substitution):
+    """Converts package://pkg/... to file:///absolute/path/... so Gazebo can find meshes.
+
+    Gazebo converts package:// to model:// internally but cannot resolve model:// URIs
+    without explicit resource path configuration. Converting to file:// at xacro time
+    (the same approach the gripper meshes use) avoids this entirely.
+    """
+
+    _PACKAGES = ["annin_ar4_description", "annin_ar4_driver"]
+
+    def __init__(self, content: Substitution):
+        super().__init__()
+        self._content = content
+
+    def perform(self, context):
+        urdf = self._content.perform(context)
+        for pkg in self._PACKAGES:
+            try:
+                share = get_package_share_directory(pkg)
+                urdf = urdf.replace(f"package://{pkg}", f"file://{share}")
+            except Exception:
+                pass
+        return urdf
+
+
 def generate_launch_description():
     ar_model_arg = DeclareLaunchArgument("ar_model",
                                          default_value="mk5",
@@ -51,6 +77,10 @@ def generate_launch_description():
                                           default_value="",
                                           description="Prefix for AR4 tf_tree")
     tf_prefix = LaunchConfiguration("tf_prefix")
+    world_arg = DeclareLaunchArgument("world",
+                                      default_value="tabletop.world",
+                                      description="Gazebo world file (relative to annin_ar4_gazebo/worlds/)")
+    world_config = LaunchConfiguration("world")
 
     initial_joint_controllers = ControllerConfigSubstitution(
         PathJoinSubstitution([
@@ -58,7 +88,7 @@ def generate_launch_description():
         ]),
         tf_prefix=tf_prefix)
 
-    robot_description_content = Command([
+    robot_description_content = ResolvePackageURIs(Command([
         PathJoinSubstitution([FindExecutable(name="xacro")]),
         " ",
         PathJoinSubstitution([
@@ -75,7 +105,7 @@ def generate_launch_description():
         " ",
         "simulation_controllers:=",
         initial_joint_controllers,
-    ])
+    ]))
     robot_description = {"robot_description": robot_description_content}
 
     robot_state_publisher_node = Node(
@@ -113,10 +143,6 @@ def generate_launch_description():
         ],
     )
 
-    # Gazebo nodes
-    world = os.path.join(get_package_share_directory('annin_ar4_gazebo'),
-                         'worlds', 'empty.world')
-
     # Bridge
     gazebo_bridge = Node(
         package='ros_gz_bridge',
@@ -124,29 +150,51 @@ def generate_launch_description():
         arguments=["/clock@rosgraph_msgs/msg/Clock[ignition.msgs.Clock"],
         output='screen')
 
-    gazebo = IncludeLaunchDescription(
-        PythonLaunchDescriptionSource(
-            [FindPackageShare("ros_gz_sim"), "/launch", "/gz_sim.launch.py"]),
-        launch_arguments={
-            'gz_args':
-            f'-r -v 4 --physics-engine gz-physics-bullet-featherstone-plugin {world}',
-            'on_exit_shutdown': 'True'
-        }.items())
+    def launch_gazebo(context, *args, **kwargs):
+        world_name = world_config.perform(context)
+        world_path = os.path.join(
+            get_package_share_directory('annin_ar4_gazebo'), 'worlds', world_name)
+        gazebo = IncludeLaunchDescription(
+            PythonLaunchDescriptionSource(
+                [FindPackageShare("ros_gz_sim"), "/launch", "/gz_sim.launch.py"]),
+            launch_arguments={
+                'gz_args':
+                f'-r -v 4 --physics-engine gz-physics-bullet-featherstone-plugin {world_path}',
+                'on_exit_shutdown': 'True'
+            }.items())
+        return [gazebo]
 
-    # Spawn robot
-    gazebo_spawn_robot = Node(
-        package="ros_gz_sim",
-        executable="create",
-        arguments=["-name", ar_model_config, "-topic", "robot_description"],
-        output="screen",
-    )
+    def spawn_robot(context, *args, **kwargs):
+        """Write the fixed URDF to a temp file and spawn from file.
+
+        Avoids a race condition where gz create subscribes to /robot_description
+        before robot_state_publisher has published, which caused intermittent
+        model:// URI resolution failures for collision meshes.
+        """
+        urdf = robot_description_content.perform(context)
+        tmp = tempfile.NamedTemporaryFile(mode='w', suffix='.urdf', delete=False)
+        tmp.write(urdf)
+        tmp.close()
+        return [
+            Node(
+                package="ros_gz_sim",
+                executable="create",
+                arguments=[
+                    "-name", ar_model_config.perform(context),
+                    "-file", tmp.name,
+                    "-Y", "1.5708",  # rotate -90° so gripper faces +X toward the objects
+                ],
+                output="screen",
+            )
+        ]
 
     return LaunchDescription([
         ar_model_arg,
         tf_prefix_arg,
+        world_arg,
         gazebo_bridge,
-        gazebo,
-        gazebo_spawn_robot,
+        OpaqueFunction(function=launch_gazebo),
+        OpaqueFunction(function=spawn_robot),
         robot_state_publisher_node,
         joint_state_broadcaster_spawner,
         initial_joint_controller_spawner_started,
