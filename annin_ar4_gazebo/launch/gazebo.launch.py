@@ -15,6 +15,7 @@ from launch.substitutions import (
     LaunchConfiguration,
 )
 from launch_ros.actions import Node
+from launch_ros.parameter_descriptions import ParameterValue
 from launch_ros.substitutions import FindPackageShare
 
 
@@ -84,7 +85,7 @@ def generate_launch_description():
 
     initial_joint_controllers = ControllerConfigSubstitution(
         PathJoinSubstitution([
-            FindPackageShare("annin_ar4_driver"), "config", "controllers.yaml"
+            FindPackageShare("annin_ar4_gazebo"), "config", "controllers_gazebo.yaml"
         ]),
         tf_prefix=tf_prefix)
 
@@ -106,7 +107,9 @@ def generate_launch_description():
         "simulation_controllers:=",
         initial_joint_controllers,
     ]))
-    robot_description = {"robot_description": robot_description_content}
+    robot_description = {
+        "robot_description": ParameterValue(robot_description_content, value_type=str)
+    }
 
     robot_state_publisher_node = Node(
         package="robot_state_publisher",
@@ -143,11 +146,17 @@ def generate_launch_description():
         ],
     )
 
-    # Bridge
+    # Bridge — maps Gazebo topics to ROS 2.
+    # Uses a config file so we can set RELIABLE QoS on camera topics; the
+    # default inline-arg mode uses BEST_EFFORT which causes a grey screen in
+    # rqt_image_view (subscriber/publisher QoS mismatch).
+    bridge_config = PathJoinSubstitution([
+        FindPackageShare("annin_ar4_gazebo"), "config", "bridge.yaml"
+    ])
     gazebo_bridge = Node(
         package='ros_gz_bridge',
         executable='parameter_bridge',
-        arguments=["/clock@rosgraph_msgs/msg/Clock[ignition.msgs.Clock"],
+        parameters=[{'config_file': bridge_config}],
         output='screen')
 
     def launch_gazebo(context, *args, **kwargs):
@@ -159,7 +168,7 @@ def generate_launch_description():
                 [FindPackageShare("ros_gz_sim"), "/launch", "/gz_sim.launch.py"]),
             launch_arguments={
                 'gz_args':
-                f'-r -v 4 --physics-engine gz-physics-bullet-featherstone-plugin {world_path}',
+                f'-r -v 4 --physics-engine gz-physics-bullet-featherstone-plugin --render-engine ogre2 {world_path}',
                 'on_exit_shutdown': 'True'
             }.items())
         return [gazebo]

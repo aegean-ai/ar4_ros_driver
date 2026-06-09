@@ -4,14 +4,15 @@ import yaml
 from ament_index_python.packages import get_package_share_directory
 from launch import LaunchDescription
 from launch.actions import DeclareLaunchArgument
+from launch.conditions import IfCondition
 from launch_ros.actions import Node
 from launch_ros.substitutions import FindPackageShare
 from launch_ros.parameter_descriptions import ParameterFile
 from launch.substitutions import (
     Command,
     FindExecutable,
-    PathJoinSubstitution,
     LaunchConfiguration,
+    PathJoinSubstitution,
 )
 
 
@@ -28,6 +29,9 @@ def generate_launch_description():
     db_arg = DeclareLaunchArgument("db",
                                    default_value="False",
                                    description="Database flag")
+    rviz_arg = DeclareLaunchArgument("rviz",
+                                     default_value="True",
+                                     description="Launch RViz2 (set false when RViz is already running)")
     ar_model_arg = DeclareLaunchArgument("ar_model",
                                          default_value="mk4",
                                          choices=["mk1", "mk2", "mk3", "mk4", "mk5"],
@@ -164,6 +168,7 @@ def generate_launch_description():
             robot_description_kinematics,
             planning_pipeline_config,
         ],
+        condition=IfCondition(LaunchConfiguration("rviz")),
     )
     # Publish TF
     robot_state_publisher = Node(
@@ -226,6 +231,7 @@ def generate_launch_description():
         db_arg,
         ar_model_arg,
         tf_prefix_arg,
+        rviz_arg,
         run_move_group_node,
         rviz_node,
         robot_state_publisher,

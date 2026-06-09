@@ -256,7 +256,21 @@
 
     </gui>
 
-    <gravity>0 0 0</gravity>
+    <!-- Server-side systems. Sensors must be declared explicitly so that the
+         render engine (ogre2) is initialised on the server — without this,
+         camera sensors create their topic but never publish frames. -->
+    <plugin filename="gz-sim-physics-system"
+            name="gz::sim::systems::Physics"/>
+    <plugin filename="gz-sim-user-commands-system"
+            name="gz::sim::systems::UserCommands"/>
+    <plugin filename="gz-sim-scene-broadcaster-system"
+            name="gz::sim::systems::SceneBroadcaster"/>
+    <plugin filename="gz-sim-sensors-system"
+            name="gz::sim::systems::Sensors">
+      <render_engine>ogre2</render_engine>
+    </plugin>
+
+    <gravity>0 0 -9.8</gravity>
 
     <light type="directional" name="sun">
       <cast_shadows>true</cast_shadows>
@@ -445,8 +459,22 @@
       <static>true</static>
       <pose>0.2 0 -0.02 0 0 0</pose>
       <link name="link">
+        <!-- 240 mm deep collision prevents objects from tunnelling through under
+             gravity. Top face sits at world Z=0 (plank surface); the box extends
+             downward invisibly. X/Y is inset 3 cm vs the visual so the gripper
+             can sit near the plank edge without generating a hard contact stop.
+             High kp/kd prevents objects sinking when the gripper presses down. -->
         <collision name="collision">
-          <geometry><box><size>1.2 0.28 0.04</size></box></geometry>
+          <pose>0 0 -0.10 0 0 0</pose>
+          <geometry><box><size>1.14 0.22 0.24</size></box></geometry>
+          <surface>
+            <friction><ode><mu>0.8</mu><mu2>0.8</mu2></ode></friction>
+            <bounce><restitution_coefficient>0</restitution_coefficient><threshold>1e6</threshold></bounce>
+            <contact>
+              <collide_bitmask>0x0001</collide_bitmask>
+              <ode><kp>1000000</kp><kd>100</kd><max_vel>0.01</max_vel><min_depth>0.001</min_depth></ode>
+            </contact>
+          </surface>
         </collision>
         <visual name="visual">
           <geometry><box><size>1.2 0.28 0.04</size></box></geometry>
@@ -462,68 +490,304 @@
 
     <!-- ===== PICK-AND-PLACE OBJECTS (on plank, to the right of robot) ===== -->
     <!--
-      The real environment has three transparent coloured objects used as
-      manipulation targets: a teal block, a purple block, and an orange cylinder.
-      They sit on the plank surface (Z=0).
+      Smaller, varied-shape objects optimised for SmolVLA pick-and-place.
+      Non-static so the robot can physically move them.
+      Gravity is enabled — objects rest on the plank and fall if knocked off.
+      Solid opaque colours give the vision model clear contrast.
+      Pick zone: X=0.47-0.65, Y=-0.05 to 0.08, plank surface Z=0.
     -->
 
-    <!-- Teal / cyan transparent block -->
+    <!-- Teal block - 23×20×22 mm, same geometry as purple/orange.
+         Placed closer to the robot (X=0.43) to avoid overlap with the orange block. -->
     <model name="block_teal">
-      <static>true</static>
-      <pose>0.52 0.05 0.03 0 0 0</pose>
+      <static>false</static>
+      <pose>0.38 0.04 0.011 0 0 0</pose>
       <link name="link">
+        <inertial>
+          <mass>0.1</mass>
+          <inertia>
+            <ixx>7.37e-6</ixx><ixy>0</ixy><ixz>0</ixz>
+            <iyy>8.44e-6</iyy><iyz>0</iyz>
+            <izz>7.74e-6</izz>
+          </inertia>
+        </inertial>
+        <!-- kp/kd matched to jaw surfaces (200000/100) — symmetric stiffness prevents
+             asymmetric jaw forces from spinning the block during grasping.
+             min_depth/max_vel matched to jaw minDepth/maxVel for consistent contact. -->
+        <!-- angular decay 5.0 → exp(-5) ≈ 0.7% remaining per second.
+             At c=0.05 the block could reach ~1 rad/s from an asymmetric jaw
+             contact, spinning 45° in under a second before the jaws closed —
+             exactly the corner-catch failure in the screenshot.  c=5.0 limits
+             steady-state spin to <0.01 rad/s under the same torque. -->
+        <velocity_decay>
+          <angular>5.0</angular>
+        </velocity_decay>
         <collision name="collision">
-          <geometry><box><size>0.06 0.06 0.06</size></box></geometry>
+          <geometry><box><size>0.023 0.020 0.022</size></box></geometry>
+          <surface>
+            <friction><ode><mu>2.5</mu><mu2>2.5</mu2></ode></friction>
+            <bounce><restitution_coefficient>0</restitution_coefficient><threshold>1e6</threshold></bounce>
+            <contact><ode><kp>100000</kp><kd>50</kd><max_vel>0.01</max_vel><min_depth>0.001</min_depth></ode></contact>
+          </surface>
         </collision>
         <visual name="visual">
-          <transparency>0.35</transparency>
-          <geometry><box><size>0.06 0.06 0.06</size></box></geometry>
+          <geometry><box><size>0.023 0.020 0.022</size></box></geometry>
           <material>
-            <ambient>0.00 0.55 0.65 0.65</ambient>
-            <diffuse>0.00 0.65 0.78 0.65</diffuse>
-            <specular>0.5 0.9 0.9 1</specular>
+            <ambient>0.00 0.60 0.70 1</ambient>
+            <diffuse>0.00 0.72 0.82 1</diffuse>
+            <specular>0.30 0.60 0.70 1</specular>
           </material>
         </visual>
       </link>
     </model>
 
-    <!-- Purple / magenta transparent block -->
+    <!-- Purple rectangular block - 23 x 20 x 22 mm.
+         All cross-section dims (23 mm and 20 mm) < 27.6 mm jaw gap, so the block
+         is graspable from all four vertical sides.  Previous size (40 x 22 x 18 mm)
+         had a 40 mm face that exceeded the jaw opening — only 2 of 4 sides worked. -->
     <model name="block_purple">
-      <static>true</static>
-      <pose>0.60 -0.02 0.03 0 0 0</pose>
+      <static>false</static>
+      <pose>0.43 -0.03 0.011 0 0 0</pose>
       <link name="link">
+        <inertial>
+          <mass>0.1</mass>
+          <inertia>
+            <ixx>7.37e-6</ixx><ixy>0</ixy><ixz>0</ixz>
+            <iyy>8.44e-6</iyy><iyz>0</iyz>
+            <izz>7.74e-6</izz>
+          </inertia>
+        </inertial>
+        <!-- angular decay 5.0 → exp(-5) ≈ 0.7% remaining per second.
+             At c=0.05 the block could reach ~1 rad/s from an asymmetric jaw
+             contact, spinning 45° in under a second before the jaws closed —
+             exactly the corner-catch failure in the screenshot.  c=5.0 limits
+             steady-state spin to <0.01 rad/s under the same torque. -->
+        <velocity_decay>
+          <angular>5.0</angular>
+        </velocity_decay>
         <collision name="collision">
-          <geometry><box><size>0.06 0.06 0.06</size></box></geometry>
+          <geometry><box><size>0.023 0.020 0.022</size></box></geometry>
+          <surface>
+            <friction><ode><mu>2.5</mu><mu2>2.5</mu2></ode></friction>
+            <bounce><restitution_coefficient>0</restitution_coefficient><threshold>1e6</threshold></bounce>
+            <contact><ode><kp>100000</kp><kd>50</kd><max_vel>0.01</max_vel><min_depth>0.001</min_depth></ode></contact>
+          </surface>
         </collision>
         <visual name="visual">
-          <transparency>0.35</transparency>
-          <geometry><box><size>0.06 0.06 0.06</size></box></geometry>
+          <geometry><box><size>0.023 0.020 0.022</size></box></geometry>
           <material>
-            <ambient>0.55 0.00 0.65 0.65</ambient>
-            <diffuse>0.65 0.10 0.78 0.65</diffuse>
-            <specular>0.8 0.5 0.9 1</specular>
+            <ambient>0.55 0.00 0.70 1</ambient>
+            <diffuse>0.62 0.08 0.80 1</diffuse>
+            <specular>0.60 0.30 0.70 1</specular>
           </material>
         </visual>
       </link>
     </model>
 
-    <!-- Orange / amber transparent cylinder (cup) -->
-    <model name="cup_orange">
-      <static>true</static>
-      <pose>0.72 0.03 0.0325 0 0 0</pose>
+    <!-- Orange block - 23×20×22 mm, same geometry as purple/teal. -->
+    <model name="block_orange">
+      <static>false</static>
+      <pose>0.49 0.05 0.011 0 0 0</pose>
       <link name="link">
+        <inertial>
+          <mass>0.1</mass>
+          <inertia>
+            <ixx>7.37e-6</ixx><ixy>0</ixy><ixz>0</ixz>
+            <iyy>8.44e-6</iyy><iyz>0</iyz>
+            <izz>7.74e-6</izz>
+          </inertia>
+        </inertial>
+        <!-- angular decay 5.0 → exp(-5) ≈ 0.7% remaining per second.
+             At c=0.05 the block could reach ~1 rad/s from an asymmetric jaw
+             contact, spinning 45° in under a second before the jaws closed —
+             exactly the corner-catch failure in the screenshot.  c=5.0 limits
+             steady-state spin to <0.01 rad/s under the same torque. -->
+        <velocity_decay>
+          <angular>5.0</angular>
+        </velocity_decay>
         <collision name="collision">
-          <geometry><cylinder><radius>0.030</radius><length>0.065</length></cylinder></geometry>
+          <geometry><box><size>0.023 0.020 0.022</size></box></geometry>
+          <surface>
+            <friction><ode><mu>2.5</mu><mu2>2.5</mu2></ode></friction>
+            <bounce><restitution_coefficient>0</restitution_coefficient><threshold>1e6</threshold></bounce>
+            <contact><ode><kp>100000</kp><kd>50</kd><max_vel>0.01</max_vel><min_depth>0.001</min_depth></ode></contact>
+          </surface>
         </collision>
         <visual name="visual">
-          <transparency>0.30</transparency>
-          <geometry><cylinder><radius>0.030</radius><length>0.065</length></cylinder></geometry>
+          <geometry><box><size>0.023 0.020 0.022</size></box></geometry>
           <material>
-            <ambient>0.90 0.45 0.00 0.70</ambient>
-            <diffuse>0.95 0.55 0.00 0.70</diffuse>
-            <specular>0.9 0.7 0.2 1</specular>
+            <ambient>0.90 0.40 0.00 1</ambient>
+            <diffuse>0.95 0.52 0.00 1</diffuse>
+            <specular>0.70 0.50 0.10 1</specular>
           </material>
         </visual>
+      </link>
+    </model>
+
+    <!-- ===== 3-TIER BOOKSHELF ===== -->
+    <!--
+      Metal bookshelf sitting on the table surface (Z=-0.04), to the right of
+      the wooden plank (Y < -0.14). Robot picks objects from the plank and
+      places them onto one of the three shelves.
+
+      Bookshelf model origin = table surface at (0.45, -0.25, -0.04).
+      All child poses are local to that origin.
+
+      Shelf surface heights (world Z):
+        Shelf 1 (bottom): local Z=0.100 -> world Z=+0.060 m
+        Shelf 2 (middle): local Z=0.200 -> world Z=+0.160 m
+        Shelf 3 (top):    local Z=0.300 -> world Z=+0.260 m
+
+      Inter-shelf clear gap: 92 mm — fits gripper + object.
+      Shelf opening: 200 mm (X) x 150 mm (Y), front (robot-facing) side open.
+      Back panel is visual-only — robot never reaches it.
+    -->
+    <model name="bookshelf">
+      <static>true</static>
+      <pose>0.45 -0.25 -0.04 0 0 0</pose>
+      <link name="link">
+
+        <!-- Corner posts (4×) — 310 mm tall, collision 8 mm sq / visual 12 mm sq. -->
+        <collision name="post_fl_col">
+          <pose>-0.100 -0.075 0.155 0 0 0</pose>
+          <geometry><box><size>0.008 0.008 0.310</size></box></geometry>
+          <surface><contact><collide_bitmask>0x0001</collide_bitmask></contact></surface>
+        </collision>
+        <visual name="post_fl_vis">
+          <pose>-0.100 -0.075 0.155 0 0 0</pose>
+          <geometry><box><size>0.012 0.012 0.310</size></box></geometry>
+          <material>
+            <ambient>0.60 0.60 0.65 1</ambient>
+            <diffuse>0.70 0.70 0.75 1</diffuse>
+            <specular>0.85 0.85 0.90 1</specular>
+          </material>
+        </visual>
+
+        <collision name="post_fr_col">
+          <pose>-0.100 0.075 0.155 0 0 0</pose>
+          <geometry><box><size>0.008 0.008 0.310</size></box></geometry>
+          <surface><contact><collide_bitmask>0x0001</collide_bitmask></contact></surface>
+        </collision>
+        <visual name="post_fr_vis">
+          <pose>-0.100 0.075 0.155 0 0 0</pose>
+          <geometry><box><size>0.012 0.012 0.310</size></box></geometry>
+          <material>
+            <ambient>0.60 0.60 0.65 1</ambient>
+            <diffuse>0.70 0.70 0.75 1</diffuse>
+            <specular>0.85 0.85 0.90 1</specular>
+          </material>
+        </visual>
+
+        <collision name="post_bl_col">
+          <pose>0.100 -0.075 0.155 0 0 0</pose>
+          <geometry><box><size>0.008 0.008 0.310</size></box></geometry>
+          <surface><contact><collide_bitmask>0x0001</collide_bitmask></contact></surface>
+        </collision>
+        <visual name="post_bl_vis">
+          <pose>0.100 -0.075 0.155 0 0 0</pose>
+          <geometry><box><size>0.012 0.012 0.310</size></box></geometry>
+          <material>
+            <ambient>0.60 0.60 0.65 1</ambient>
+            <diffuse>0.70 0.70 0.75 1</diffuse>
+            <specular>0.85 0.85 0.90 1</specular>
+          </material>
+        </visual>
+
+        <collision name="post_br_col">
+          <pose>0.100 0.075 0.155 0 0 0</pose>
+          <geometry><box><size>0.008 0.008 0.310</size></box></geometry>
+          <surface><contact><collide_bitmask>0x0001</collide_bitmask></contact></surface>
+        </collision>
+        <visual name="post_br_vis">
+          <pose>0.100 0.075 0.155 0 0 0</pose>
+          <geometry><box><size>0.012 0.012 0.310</size></box></geometry>
+          <material>
+            <ambient>0.60 0.60 0.65 1</ambient>
+            <diffuse>0.70 0.70 0.75 1</diffuse>
+            <specular>0.85 0.85 0.90 1</specular>
+          </material>
+        </visual>
+
+        <!-- Shelf 1 (bottom) — world Z=+0.060 m.
+             Collision inset 6 mm on X/Y vs visual. Soft contact so the gripper
+             can slide an object onto the shelf without the physics locking the arm. -->
+        <collision name="shelf1_col">
+          <pose>0 0 0.100 0 0 0</pose>
+          <geometry><box><size>0.188 0.138 0.008</size></box></geometry>
+          <surface>
+            <friction><ode><mu>0.8</mu><mu2>0.8</mu2></ode></friction>
+            <contact>
+              <collide_bitmask>0x0001</collide_bitmask>
+              <ode><kp>50000</kp><kd>500</kd><max_vel>0.05</max_vel><min_depth>0.002</min_depth></ode>
+            </contact>
+          </surface>
+        </collision>
+        <visual name="shelf1_vis">
+          <pose>0 0 0.100 0 0 0</pose>
+          <geometry><box><size>0.200 0.150 0.008</size></box></geometry>
+          <material>
+            <ambient>0.55 0.55 0.60 1</ambient>
+            <diffuse>0.65 0.65 0.70 1</diffuse>
+            <specular>0.85 0.85 0.90 1</specular>
+          </material>
+        </visual>
+
+        <!-- Shelf 2 (middle) — world Z=+0.160 m. -->
+        <collision name="shelf2_col">
+          <pose>0 0 0.200 0 0 0</pose>
+          <geometry><box><size>0.188 0.138 0.008</size></box></geometry>
+          <surface>
+            <friction><ode><mu>0.8</mu><mu2>0.8</mu2></ode></friction>
+            <contact>
+              <collide_bitmask>0x0001</collide_bitmask>
+              <ode><kp>50000</kp><kd>500</kd><max_vel>0.05</max_vel><min_depth>0.002</min_depth></ode>
+            </contact>
+          </surface>
+        </collision>
+        <visual name="shelf2_vis">
+          <pose>0 0 0.200 0 0 0</pose>
+          <geometry><box><size>0.200 0.150 0.008</size></box></geometry>
+          <material>
+            <ambient>0.55 0.55 0.60 1</ambient>
+            <diffuse>0.65 0.65 0.70 1</diffuse>
+            <specular>0.85 0.85 0.90 1</specular>
+          </material>
+        </visual>
+
+        <!-- Shelf 3 (top) — world Z=+0.260 m. -->
+        <collision name="shelf3_col">
+          <pose>0 0 0.300 0 0 0</pose>
+          <geometry><box><size>0.188 0.138 0.008</size></box></geometry>
+          <surface>
+            <friction><ode><mu>0.8</mu><mu2>0.8</mu2></ode></friction>
+            <contact>
+              <collide_bitmask>0x0001</collide_bitmask>
+              <ode><kp>50000</kp><kd>500</kd><max_vel>0.05</max_vel><min_depth>0.002</min_depth></ode>
+            </contact>
+          </surface>
+        </collision>
+        <visual name="shelf3_vis">
+          <pose>0 0 0.300 0 0 0</pose>
+          <geometry><box><size>0.200 0.150 0.008</size></box></geometry>
+          <material>
+            <ambient>0.55 0.55 0.60 1</ambient>
+            <diffuse>0.65 0.65 0.70 1</diffuse>
+            <specular>0.85 0.85 0.90 1</specular>
+          </material>
+        </visual>
+
+        <!-- Back panel — visual only, no collision. Gives the policy a clear
+             depth reference and makes the shelf look like a proper unit. -->
+        <visual name="back_panel_vis">
+          <pose>0 -0.071 0.155 0 0 0</pose>
+          <geometry><box><size>0.200 0.006 0.310</size></box></geometry>
+          <material>
+            <ambient>0.55 0.55 0.60 1</ambient>
+            <diffuse>0.65 0.65 0.70 1</diffuse>
+            <specular>0.85 0.85 0.90 1</specular>
+          </material>
+        </visual>
+
       </link>
     </model>
 

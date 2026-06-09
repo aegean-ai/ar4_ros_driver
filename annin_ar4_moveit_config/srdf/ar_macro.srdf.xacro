@@ -55,6 +55,10 @@
     <!-- Gripper adjacency -->
     <disable_collisions link1="${tf_prefix}link_6_aluminum" link2="${tf_prefix}gripper_base_link" reason="Adjacent" />
     <disable_collisions link1="${tf_prefix}link_5_aluminum" link2="${tf_prefix}gripper_base_link" reason="Adjacent" />
+    <!-- At the all-zeros home position the gripper folds back far enough that
+         link_4_aluminum and gripper_base_link overlap in collision space.
+         Disable this pair so planning is not blocked at startup. -->
+    <disable_collisions link1="${tf_prefix}link_4_aluminum" link2="${tf_prefix}gripper_base_link" reason="Default" />
 
 
 
