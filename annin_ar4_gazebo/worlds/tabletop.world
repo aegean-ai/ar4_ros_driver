@@ -637,30 +637,30 @@
 
       Shelf surface heights (world Z):
         Shelf 1 (bottom): local Z=0.100 -> world Z=+0.060 m
-        Shelf 2 (middle): local Z=0.200 -> world Z=+0.160 m
-        Shelf 3 (top):    local Z=0.300 -> world Z=+0.260 m
+        Shelf 2 (middle): local Z=0.260 -> world Z=+0.220 m
+        Shelf 3 (top):    local Z=0.420 -> world Z=+0.380 m
 
-      Inter-shelf clear gap: 92 mm — fits gripper + object.
+      Inter-shelf clear gap: 160 mm — ample room for front insertion.
       Shelf opening: 200 mm (X) x 150 mm (Y), front (robot-facing) side open.
       Back panel is visual-only — robot never reaches it.
     -->
     <model name="bookshelf">
       <static>true</static>
-      <!-- Moved further to the right (was 0.45 -0.25) so the arm swivels its base
-           ~56° and can insert into the front-open middle/bottom shelves; table
-           widened in Y to support it. -->
+      <!-- Out to the side of the arm (world 0.30,-0.45), well clear of the pick
+           plank — the arm swivels its base ~56° to front-insert into the tiers.
+           Table widened in Y to support it. -->
       <pose>0.30 -0.45 -0.04 0 0 0</pose>
       <link name="link">
 
         <!-- Corner posts (4×) — 310 mm tall, collision 8 mm sq / visual 12 mm sq. -->
         <collision name="post_fl_col">
-          <pose>-0.100 -0.075 0.155 0 0 0</pose>
-          <geometry><box><size>0.008 0.008 0.310</size></box></geometry>
+          <pose>-0.100 -0.075 0.230 0 0 0</pose>
+          <geometry><box><size>0.008 0.008 0.460</size></box></geometry>
           <surface><contact><collide_bitmask>0x0001</collide_bitmask></contact></surface>
         </collision>
         <visual name="post_fl_vis">
-          <pose>-0.100 -0.075 0.155 0 0 0</pose>
-          <geometry><box><size>0.012 0.012 0.310</size></box></geometry>
+          <pose>-0.100 -0.075 0.230 0 0 0</pose>
+          <geometry><box><size>0.012 0.012 0.460</size></box></geometry>
           <material>
             <ambient>0.60 0.60 0.65 1</ambient>
             <diffuse>0.70 0.70 0.75 1</diffuse>
@@ -669,13 +669,13 @@
         </visual>
 
         <collision name="post_fr_col">
-          <pose>-0.100 0.075 0.155 0 0 0</pose>
-          <geometry><box><size>0.008 0.008 0.310</size></box></geometry>
+          <pose>-0.100 0.075 0.230 0 0 0</pose>
+          <geometry><box><size>0.008 0.008 0.460</size></box></geometry>
           <surface><contact><collide_bitmask>0x0001</collide_bitmask></contact></surface>
         </collision>
         <visual name="post_fr_vis">
-          <pose>-0.100 0.075 0.155 0 0 0</pose>
-          <geometry><box><size>0.012 0.012 0.310</size></box></geometry>
+          <pose>-0.100 0.075 0.230 0 0 0</pose>
+          <geometry><box><size>0.012 0.012 0.460</size></box></geometry>
           <material>
             <ambient>0.60 0.60 0.65 1</ambient>
             <diffuse>0.70 0.70 0.75 1</diffuse>
@@ -684,13 +684,13 @@
         </visual>
 
         <collision name="post_bl_col">
-          <pose>0.100 -0.075 0.155 0 0 0</pose>
-          <geometry><box><size>0.008 0.008 0.310</size></box></geometry>
+          <pose>0.100 -0.075 0.230 0 0 0</pose>
+          <geometry><box><size>0.008 0.008 0.460</size></box></geometry>
           <surface><contact><collide_bitmask>0x0001</collide_bitmask></contact></surface>
         </collision>
         <visual name="post_bl_vis">
-          <pose>0.100 -0.075 0.155 0 0 0</pose>
-          <geometry><box><size>0.012 0.012 0.310</size></box></geometry>
+          <pose>0.100 -0.075 0.230 0 0 0</pose>
+          <geometry><box><size>0.012 0.012 0.460</size></box></geometry>
           <material>
             <ambient>0.60 0.60 0.65 1</ambient>
             <diffuse>0.70 0.70 0.75 1</diffuse>
@@ -699,13 +699,13 @@
         </visual>
 
         <collision name="post_br_col">
-          <pose>0.100 0.075 0.155 0 0 0</pose>
-          <geometry><box><size>0.008 0.008 0.310</size></box></geometry>
+          <pose>0.100 0.075 0.230 0 0 0</pose>
+          <geometry><box><size>0.008 0.008 0.460</size></box></geometry>
           <surface><contact><collide_bitmask>0x0001</collide_bitmask></contact></surface>
         </collision>
         <visual name="post_br_vis">
-          <pose>0.100 0.075 0.155 0 0 0</pose>
-          <geometry><box><size>0.012 0.012 0.310</size></box></geometry>
+          <pose>0.100 0.075 0.230 0 0 0</pose>
+          <geometry><box><size>0.012 0.012 0.460</size></box></geometry>
           <material>
             <ambient>0.60 0.60 0.65 1</ambient>
             <diffuse>0.70 0.70 0.75 1</diffuse>
@@ -737,9 +737,9 @@
           </material>
         </visual>
 
-        <!-- Shelf 2 (middle) — world Z=+0.160 m. -->
+        <!-- Shelf 2 (middle) — world Z=+0.220 m. -->
         <collision name="shelf2_col">
-          <pose>0 0 0.200 0 0 0</pose>
+          <pose>0 0 0.260 0 0 0</pose>
           <geometry><box><size>0.188 0.138 0.008</size></box></geometry>
           <surface>
             <friction><ode><mu>0.8</mu><mu2>0.8</mu2></ode></friction>
@@ -750,7 +750,7 @@
           </surface>
         </collision>
         <visual name="shelf2_vis">
-          <pose>0 0 0.200 0 0 0</pose>
+          <pose>0 0 0.260 0 0 0</pose>
           <geometry><box><size>0.200 0.150 0.008</size></box></geometry>
           <material>
             <ambient>0.55 0.55 0.60 1</ambient>
@@ -759,9 +759,9 @@
           </material>
         </visual>
 
-        <!-- Shelf 3 (top) — world Z=+0.260 m. -->
+        <!-- Shelf 3 (top) — world Z=+0.380 m. -->
         <collision name="shelf3_col">
-          <pose>0 0 0.300 0 0 0</pose>
+          <pose>0 0 0.420 0 0 0</pose>
           <geometry><box><size>0.188 0.138 0.008</size></box></geometry>
           <surface>
             <friction><ode><mu>0.8</mu><mu2>0.8</mu2></ode></friction>
@@ -772,7 +772,7 @@
           </surface>
         </collision>
         <visual name="shelf3_vis">
-          <pose>0 0 0.300 0 0 0</pose>
+          <pose>0 0 0.420 0 0 0</pose>
           <geometry><box><size>0.200 0.150 0.008</size></box></geometry>
           <material>
             <ambient>0.55 0.55 0.60 1</ambient>
@@ -784,8 +784,8 @@
         <!-- Back panel — visual only, no collision. Gives the policy a clear
              depth reference and makes the shelf look like a proper unit. -->
         <visual name="back_panel_vis">
-          <pose>0 -0.071 0.155 0 0 0</pose>
-          <geometry><box><size>0.200 0.006 0.310</size></box></geometry>
+          <pose>0 -0.071 0.230 0 0 0</pose>
+          <geometry><box><size>0.200 0.006 0.460</size></box></geometry>
           <material>
             <ambient>0.55 0.55 0.60 1</ambient>
             <diffuse>0.65 0.65 0.70 1</diffuse>
