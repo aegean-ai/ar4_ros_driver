@@ -640,8 +640,12 @@
           <inertia><ixx>7.5e-6</ixx><ixy>0</ixy><ixz>0</ixz><iyy>7.5e-6</iyy><iyz>0</iyz><izz>7.2e-6</izz></inertia>
         </inertial>
         <velocity_decay><angular>5.0</angular></velocity_decay>
+        <!-- Box COLLISION (bounding the diameter) — the cylinder PRIMITIVE collision is
+             unstable in this physics engine and explodes on spawn; a box is stable like
+             the cubes. The visual below stays a round cylinder (what the camera sees).
+             Contact params matched to the cube blocks. -->
         <collision name="collision">
-          <geometry><cylinder><radius>0.012</radius><length>0.024</length></cylinder></geometry>
+          <geometry><box><size>0.024 0.024 0.024</size></box></geometry>
           <surface>
             <friction><ode><mu>2.5</mu><mu2>2.5</mu2></ode></friction>
             <bounce><restitution_coefficient>0</restitution_coefficient><threshold>1e6</threshold></bounce>
@@ -663,8 +667,11 @@
           <inertia><ixx>7.5e-6</ixx><ixy>0</ixy><ixz>0</ixz><iyy>7.5e-6</iyy><iyz>0</iyz><izz>7.5e-6</izz></inertia>
         </inertial>
         <velocity_decay><angular>5.0</angular></velocity_decay>
+        <!-- Box COLLISION bounding the hex (across-corners X 0.0254, across-flats Y
+             0.022, height Z 0.024); mesh-vs-jaw contact slips, a box grips like the
+             cubes. Visual below stays the true hex mesh (what the camera sees). -->
         <collision name="collision">
-          <geometry><mesh><uri>file:///ar4_ws/install/annin_ar4_gazebo/share/annin_ar4_gazebo/meshes/hex_prism.stl</uri></mesh></geometry>
+          <geometry><box><size>0.0254 0.022 0.024</size></box></geometry>
           <surface>
             <friction><ode><mu>2.5</mu><mu2>2.5</mu2></ode></friction>
             <bounce><restitution_coefficient>0</restitution_coefficient><threshold>1e6</threshold></bounce>
@@ -686,8 +693,11 @@
           <inertia><ixx>7.0e-6</ixx><ixy>0</ixy><ixz>0</ixz><iyy>7.0e-6</iyy><iyz>0</iyz><izz>7.0e-6</izz></inertia>
         </inertial>
         <velocity_decay><angular>5.0</angular></velocity_decay>
+        <!-- Box COLLISION bounding the tri prism (X 0.024, Y 0.022 between the vertical
+             triangular caps = grip dim, Z 0.0277 height); mesh-vs-jaw contact slips, a
+             box grips like the cubes. Visual below stays the true tri mesh. -->
         <collision name="collision">
-          <geometry><mesh><uri>file:///ar4_ws/install/annin_ar4_gazebo/share/annin_ar4_gazebo/meshes/tri_prism.stl</uri></mesh></geometry>
+          <geometry><box><size>0.024 0.022 0.0277</size></box></geometry>
           <surface>
             <friction><ode><mu>2.5</mu><mu2>2.5</mu2></ode></friction>
             <bounce><restitution_coefficient>0</restitution_coefficient><threshold>1e6</threshold></bounce>
