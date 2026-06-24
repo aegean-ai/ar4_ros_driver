@@ -20,8 +20,9 @@
         <scene>scene</scene>
         <ambient_light>0.4 0.4 0.4</ambient_light>
         <background_color>0.8 0.8 0.8</background_color>
-        <!-- Camera positioned to view robot on table from the front -->
-        <camera_pose>0.2 -1.6 0.9 0 0.38 1.57</camera_pose>
+        <!-- GUI 3D view starts from the scene/wall camera's vantage (matches the
+             scene_camera model pose) so the operator sees what the scene camera records. -->
+        <camera_pose>0.30 0.72 0.65 0 0.30 -1.5708</camera_pose>
         <camera_clip>
           <near>0.25</near>
           <far>25000</far>
@@ -697,7 +698,7 @@
              triangular caps = grip dim, Z 0.0277 height); mesh-vs-jaw contact slips, a
              box grips like the cubes. Visual below stays the true tri mesh. -->
         <collision name="collision">
-          <geometry><box><size>0.024 0.022 0.0277</size></box></geometry>
+          <geometry><box><size>0.0277 0.022 0.024</size></box></geometry>
           <surface>
             <friction><ode><mu>2.5</mu><mu2>2.5</mu2></ode></friction>
             <bounce><restitution_coefficient>0</restitution_coefficient><threshold>1e6</threshold></bounce>
