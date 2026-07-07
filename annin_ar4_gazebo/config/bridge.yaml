@@ -32,3 +32,15 @@
     durability: VOLATILE
     history: KEEP_LAST
     depth: 1
+
+# Axis-style third-person scene camera (wall-mounted, to the side of the arm).
+- ros_topic_name: "/scene_camera/image"
+  gz_topic_name: "/scene_camera/image"
+  ros_type_name: "sensor_msgs/msg/Image"
+  gz_type_name: "gz.msgs.Image"
+  direction: GZ_TO_ROS
+  qos:
+    reliability: RELIABLE
+    durability: VOLATILE
+    history: KEEP_LAST
+    depth: 1
