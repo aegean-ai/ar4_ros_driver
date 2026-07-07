@@ -168,7 +168,7 @@ def generate_launch_description():
                 [FindPackageShare("ros_gz_sim"), "/launch", "/gz_sim.launch.py"]),
             launch_arguments={
                 'gz_args':
-                f'-r -v 4 --physics-engine gz-physics-bullet-featherstone-plugin --render-engine ogre2 {world_path}',
+                f'-r -s -v 4 --headless-rendering --physics-engine gz-physics-bullet-featherstone-plugin --render-engine ogre2 {world_path}',
                 'on_exit_shutdown': 'True'
             }.items())
         return [gazebo]
