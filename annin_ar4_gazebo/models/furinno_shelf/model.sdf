@@ -1,0 +1,102 @@
+<?xml version="1.0"?>
+<sdf version="1.9">
+  <!--
+    Furinno Hermite desk-top organizing shelf — geometry-matched twin (AURA-753).
+
+    Frame: X = width (0.417 m), Y = depth (0.198 m), Z = height (0.236 m), origin at
+    the base bottom. Open FRONT (+Y, robot side) and open BACK (-Y), matching the
+    front-insertion placement primitive. Panel thickness ASSUMED 15 mm (typical
+    Furinno particle board) — caliper the real unit before final calibration.
+
+    Two tiers (one middle shelf):
+      tier interiors: z 0.015..0.1105 and 0.1255..0.221  (~95.5 mm clear each)
+      inner width:    0.387 m   inner depth: 0.198 m (open both faces)
+
+    When placed at the standard site pose (0.30, -0.45, -0.04) the tier SURFACES are:
+      bottom tier: world z = -0.025   (use as shelves[].target z in sim_data_tasks.yaml)
+      top tier:    world z =  0.0855
+    NOTE for integration: ar4_teleop's ACM allow-list (_SHELF_FRONT_PARTS) hardcodes
+    the old bookshelf collision names — make it spec-driven when wiring this model in.
+  -->
+  <model name="furinno_shelf">
+    <static>true</static>
+    <link name="link">
+
+      <collision name="base_col">
+        <pose>0 0 0.0075 0 0 0</pose>
+        <geometry><box><size>0.417 0.198 0.015</size></box></geometry>
+        <surface><contact><collide_bitmask>0x0001</collide_bitmask></contact></surface>
+      </collision>
+      <visual name="base_vis">
+        <pose>0 0 0.0075 0 0 0</pose>
+        <geometry><box><size>0.417 0.198 0.015</size></box></geometry>
+        <material>
+          <ambient>0.42 0.30 0.20 1</ambient>
+          <diffuse>0.52 0.37 0.26 1</diffuse>
+          <specular>0.15 0.12 0.10 1</specular>
+        </material>
+      </visual>
+
+      <collision name="top_col">
+        <pose>0 0 0.2285 0 0 0</pose>
+        <geometry><box><size>0.417 0.198 0.015</size></box></geometry>
+        <surface><contact><collide_bitmask>0x0001</collide_bitmask></contact></surface>
+      </collision>
+      <visual name="top_vis">
+        <pose>0 0 0.2285 0 0 0</pose>
+        <geometry><box><size>0.417 0.198 0.015</size></box></geometry>
+        <material>
+          <ambient>0.42 0.30 0.20 1</ambient>
+          <diffuse>0.52 0.37 0.26 1</diffuse>
+          <specular>0.15 0.12 0.10 1</specular>
+        </material>
+      </visual>
+
+      <collision name="side_l_col">
+        <pose>-0.201 0 0.118 0 0 0</pose>
+        <geometry><box><size>0.015 0.198 0.206</size></box></geometry>
+        <surface><contact><collide_bitmask>0x0001</collide_bitmask></contact></surface>
+      </collision>
+      <visual name="side_l_vis">
+        <pose>-0.201 0 0.118 0 0 0</pose>
+        <geometry><box><size>0.015 0.198 0.206</size></box></geometry>
+        <material>
+          <ambient>0.42 0.30 0.20 1</ambient>
+          <diffuse>0.52 0.37 0.26 1</diffuse>
+          <specular>0.15 0.12 0.10 1</specular>
+        </material>
+      </visual>
+
+      <collision name="side_r_col">
+        <pose>0.201 0 0.118 0 0 0</pose>
+        <geometry><box><size>0.015 0.198 0.206</size></box></geometry>
+        <surface><contact><collide_bitmask>0x0001</collide_bitmask></contact></surface>
+      </collision>
+      <visual name="side_r_vis">
+        <pose>0.201 0 0.118 0 0 0</pose>
+        <geometry><box><size>0.015 0.198 0.206</size></box></geometry>
+        <material>
+          <ambient>0.42 0.30 0.20 1</ambient>
+          <diffuse>0.52 0.37 0.26 1</diffuse>
+          <specular>0.15 0.12 0.10 1</specular>
+        </material>
+      </visual>
+
+      <collision name="shelf1_col">
+        <pose>0 0 0.118 0 0 0</pose>
+        <geometry><box><size>0.387 0.198 0.015</size></box></geometry>
+        <surface><contact><collide_bitmask>0x0001</collide_bitmask></contact></surface>
+      </collision>
+      <visual name="shelf1_vis">
+        <pose>0 0 0.118 0 0 0</pose>
+        <geometry><box><size>0.387 0.198 0.015</size></box></geometry>
+        <material>
+          <ambient>0.45 0.32 0.22 1</ambient>
+          <diffuse>0.55 0.40 0.28 1</diffuse>
+          <specular>0.15 0.12 0.10 1</specular>
+        </material>
+      </visual>
+
+    </link>
+  </model>
+</sdf>
