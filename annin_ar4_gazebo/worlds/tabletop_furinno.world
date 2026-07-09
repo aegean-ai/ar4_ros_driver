@@ -716,105 +716,104 @@
     </model>
 
     <!-- ===== FURINNO HERMITE SHELF (real-product twin, AURA-753) ===== -->
-    <!--
-      Furinno Hermite desk-top organizing shelf on the table surface (Z=-0.04),
-      to the right of the wooden plank (Y < -0.14). Robot picks objects from the
-      plank and places them into one of the TWO tiers.
-
-      Model origin = table surface at (0.30, -0.45, -0.04); child poses local.
-
-      Tier surface heights (world Z):
-        bottom tier: local Z=0.010 -> world Z=-0.030 m
-        top tier:    local Z=0.123 -> world Z=+0.083 m
-
-      Tier clear height: ~103 mm; inner width 397 mm; open front (+Y, robot
-      side) AND back. Much tighter than the old bookshelf's 160 mm gaps —
-      re-tune place.approach_height / drop_gap / front_inset during the
-      AURA-753 calibration pass before data generation.
-    -->
     <model name="furinno_shelf">
       <static>true</static>
-      <!-- Digital twin of the real Furinno Hermite desk-top shelf (AURA-753):
-           0.417W x 0.198D x 0.236H, 10mm panels, two tiers, open front (+Y, robot
-           side) and back. Replaces the synthetic 3-tier bookshelf of tabletop.world.
-           Tier surfaces (world z): bottom -0.030, top 0.083 -> use as the
-           sim_data_tasks.yaml shelves[].target z values. Geometry mirrors
-           models/furinno_shelf/model.sdf (keep in sync). -->
+      <!-- Real-product twin (AURA-753): Furinno Hermite 16.4x7.8x9.25in, grey oak,
+           10mm panels. Stands on its side panels; two shelf boards + usable top;
+           center divider splits the LOWER tier into two cubbies. Geometry mirrors
+           models/furinno_shelf/model.sdf (keep in sync).
+           Placement surfaces (world z): lower cubbies +0.025 (60mm clear — tight),
+           upper tier +0.095 (90mm clear), top surface +0.195 (open air). -->
       <pose>0.30 -0.45 -0.04 0 0 0</pose>
       <link name="link">
 
-      <collision name="base_col">
-        <pose>0 0 0.005 0 0 0</pose>
-        <geometry><box><size>0.417 0.198 0.010</size></box></geometry>
-        <surface><contact><collide_bitmask>0x0001</collide_bitmask></contact></surface>
-      </collision>
-      <visual name="base_vis">
-        <pose>0 0 0.005 0 0 0</pose>
-        <geometry><box><size>0.417 0.198 0.010</size></box></geometry>
-        <material>
-          <ambient>0.42 0.30 0.20 1</ambient>
-          <diffuse>0.52 0.37 0.26 1</diffuse>
-          <specular>0.15 0.12 0.10 1</specular>
-        </material>
-      </visual>
-
-      <collision name="top_col">
-        <pose>0 0 0.231 0 0 0</pose>
-        <geometry><box><size>0.417 0.198 0.010</size></box></geometry>
-        <surface><contact><collide_bitmask>0x0001</collide_bitmask></contact></surface>
-      </collision>
-      <visual name="top_vis">
-        <pose>0 0 0.231 0 0 0</pose>
-        <geometry><box><size>0.417 0.198 0.010</size></box></geometry>
-        <material>
-          <ambient>0.42 0.30 0.20 1</ambient>
-          <diffuse>0.52 0.37 0.26 1</diffuse>
-          <specular>0.15 0.12 0.10 1</specular>
-        </material>
-      </visual>
-
       <collision name="side_l_col">
-        <pose>-0.2035 0 0.118 0 0 0</pose>
-        <geometry><box><size>0.010 0.198 0.216</size></box></geometry>
+        <pose>-0.2035 0 0.1175 0 0 0</pose>
+        <geometry><box><size>0.010 0.198 0.235</size></box></geometry>
         <surface><contact><collide_bitmask>0x0001</collide_bitmask></contact></surface>
       </collision>
       <visual name="side_l_vis">
-        <pose>-0.2035 0 0.118 0 0 0</pose>
-        <geometry><box><size>0.010 0.198 0.216</size></box></geometry>
+        <pose>-0.2035 0 0.1175 0 0 0</pose>
+        <geometry><box><size>0.010 0.198 0.235</size></box></geometry>
         <material>
-          <ambient>0.42 0.30 0.20 1</ambient>
-          <diffuse>0.52 0.37 0.26 1</diffuse>
-          <specular>0.15 0.12 0.10 1</specular>
+          <ambient>0.45 0.44 0.42 1</ambient>
+          <diffuse>0.58 0.56 0.53 1</diffuse>
+          <specular>0.12 0.12 0.12 1</specular>
         </material>
       </visual>
 
       <collision name="side_r_col">
-        <pose>0.2035 0 0.118 0 0 0</pose>
-        <geometry><box><size>0.010 0.198 0.216</size></box></geometry>
+        <pose>0.2035 0 0.1175 0 0 0</pose>
+        <geometry><box><size>0.010 0.198 0.235</size></box></geometry>
         <surface><contact><collide_bitmask>0x0001</collide_bitmask></contact></surface>
       </collision>
       <visual name="side_r_vis">
-        <pose>0.2035 0 0.118 0 0 0</pose>
-        <geometry><box><size>0.010 0.198 0.216</size></box></geometry>
+        <pose>0.2035 0 0.1175 0 0 0</pose>
+        <geometry><box><size>0.010 0.198 0.235</size></box></geometry>
         <material>
-          <ambient>0.42 0.30 0.20 1</ambient>
-          <diffuse>0.52 0.37 0.26 1</diffuse>
-          <specular>0.15 0.12 0.10 1</specular>
+          <ambient>0.45 0.44 0.42 1</ambient>
+          <diffuse>0.58 0.56 0.53 1</diffuse>
+          <specular>0.12 0.12 0.12 1</specular>
         </material>
       </visual>
 
-      <collision name="shelf1_col">
-        <pose>0 0 0.118 0 0 0</pose>
+      <collision name="top_col">
+        <pose>0 0 0.230 0 0 0</pose>
+        <geometry><box><size>0.417 0.198 0.010</size></box></geometry>
+        <surface><contact><collide_bitmask>0x0001</collide_bitmask></contact></surface>
+      </collision>
+      <visual name="top_vis">
+        <pose>0 0 0.230 0 0 0</pose>
+        <geometry><box><size>0.417 0.198 0.010</size></box></geometry>
+        <material>
+          <ambient>0.45 0.44 0.42 1</ambient>
+          <diffuse>0.58 0.56 0.53 1</diffuse>
+          <specular>0.12 0.12 0.12 1</specular>
+        </material>
+      </visual>
+
+      <collision name="mid_shelf_col">
+        <pose>0 0 0.130 0 0 0</pose>
         <geometry><box><size>0.397 0.198 0.010</size></box></geometry>
         <surface><contact><collide_bitmask>0x0001</collide_bitmask></contact></surface>
       </collision>
-      <visual name="shelf1_vis">
-        <pose>0 0 0.118 0 0 0</pose>
+      <visual name="mid_shelf_vis">
+        <pose>0 0 0.130 0 0 0</pose>
         <geometry><box><size>0.397 0.198 0.010</size></box></geometry>
         <material>
-          <ambient>0.45 0.32 0.22 1</ambient>
-          <diffuse>0.55 0.40 0.28 1</diffuse>
-          <specular>0.15 0.12 0.10 1</specular>
+          <ambient>0.45 0.44 0.42 1</ambient>
+          <diffuse>0.58 0.56 0.53 1</diffuse>
+          <specular>0.12 0.12 0.12 1</specular>
+        </material>
+      </visual>
+
+      <collision name="low_shelf_col">
+        <pose>0 0 0.060 0 0 0</pose>
+        <geometry><box><size>0.397 0.198 0.010</size></box></geometry>
+        <surface><contact><collide_bitmask>0x0001</collide_bitmask></contact></surface>
+      </collision>
+      <visual name="low_shelf_vis">
+        <pose>0 0 0.060 0 0 0</pose>
+        <geometry><box><size>0.397 0.198 0.010</size></box></geometry>
+        <material>
+          <ambient>0.45 0.44 0.42 1</ambient>
+          <diffuse>0.58 0.56 0.53 1</diffuse>
+          <specular>0.12 0.12 0.12 1</specular>
+        </material>
+      </visual>
+
+      <collision name="divider_col">
+        <pose>0 0 0.0625 0 0 0</pose>
+        <geometry><box><size>0.010 0.198 0.125</size></box></geometry>
+        <surface><contact><collide_bitmask>0x0001</collide_bitmask></contact></surface>
+      </collision>
+      <visual name="divider_vis">
+        <pose>0 0 0.0625 0 0 0</pose>
+        <geometry><box><size>0.010 0.198 0.125</size></box></geometry>
+        <material>
+          <ambient>0.45 0.44 0.42 1</ambient>
+          <diffuse>0.58 0.56 0.53 1</diffuse>
+          <specular>0.12 0.12 0.12 1</specular>
         </material>
       </visual>
 
