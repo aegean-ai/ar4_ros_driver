@@ -98,6 +98,12 @@ hardware_interface::CallbackReturn ARServoGripperHWInterface::on_activate(
     return hardware_interface::CallbackReturn::ERROR;
   }
   position_ = servo_angle_to_linear_pos(pos_deg);
+  // Boot OPEN, not closed. The default (position_command_ = 0.0) drives the
+  // servo into its closed stop on startup and stalls it there until a goal
+  // arrives, which is the idle-closed slow-cook. Command open so a fresh driver
+  // never sits stalled. (The grasp-hold timeout is the backstop if a closed
+  // command persists anyway.)
+  position_command_ = open_position_;
   return hardware_interface::CallbackReturn::SUCCESS;
 }
 
@@ -156,13 +162,13 @@ hardware_interface::return_type ARServoGripperHWInterface::read(
 }
 
 hardware_interface::return_type ARServoGripperHWInterface::write(
-    const rclcpp::Time& /*time*/, const rclcpp::Duration& /*period*/) {
+    const rclcpp::Time& time, const rclcpp::Duration& /*period*/) {
   double position_command = position_command_;
 
-  // Apply overcurrent protection
+  // Apply overcurrent protection (intent-aware + time-bounded grasp hold)
   if (overcurrent_protection_) {
     position_command = overcurrent_protection_->AdjustGripperPosition(
-        position_command, closed_position_, open_position_);
+        position_command, closed_position_, open_position_, time);
   }
 
   int pos_deg = linear_pos_to_servo_angle(position_command);

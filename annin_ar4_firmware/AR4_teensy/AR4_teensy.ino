@@ -17,8 +17,47 @@ String MODEL = "";
 ///////////////////////////////////////////////////////////////////////////////
 
 const int NUM_JOINTS = 6;
-// User-defined calibration offsets in DEGREES (positive means add angle)
-float CAL_OFFSET_DEG[NUM_JOINTS] = { 1.2, -0.8, 0, 0, 0, 0 };
+// User-defined calibration offsets in DEGREES (positive means add angle).
+//
+// 2026-07-12: reset to the upstream vendor defaults. The arm was reassembled
+// (J4 had been mounted 180 deg off), so the previously measured offsets
+// { 1.2, -0.8, -9, 0, -13.25, 0 } no longer describe this machine. Re-measure
+// from scratch on the rebuilt arm rather than porting the old numbers forward.
+//
+// Offsets are machine-specific and are not expected to transfer between arms,
+// or across a reassembly of the same arm.
+//
+// To tune: calibrate, then measure how far each joint sits from true zero.
+// /joint_states will report ~0 at rest no matter how wrong the offset is — it
+// cancels out of encStepsToJointPos, so ROS cannot see this error and you must
+// measure it PHYSICALLY. Then:
+//
+//     new_offset = old_offset + observed_error
+//
+// where observed_error uses the ROS sign convention, NOT the one in the AR4
+// manual's rotation diagram — they disagree. Established by jogging +3 deg:
+// ROS-positive J3 = UP, ROS-positive J4 = CLOCKWISE. The update rule is
+// likewise empirical: on the old build, -14 -> -19 on J3 drove it FURTHER up,
+// so a more negative offset raises the joint. A plain reading of
+// encStepsToJointPos suggests the opposite — trust the arm, not the algebra.
+//
+// Never use an offset to cancel a mechanical fault. An offset shifts
+// effective_min in jointPosToEncSteps, but MoveIt takes its limits from the
+// URDF and knows nothing about it, so a large offset lets MoveIt plan a joint
+// straight into a hard stop while reported positions still read ~0 — it looks
+// correct right up until it crashes. This is exactly what a
+// CAL_OFFSET_DEG[3] = 180 "fix" for the old J4 mount would have done: J4's
+// limits are exactly -180..+180 (JOINT_LIMIT_MIN/MAX_MK4), so it has no spare
+// travel to absorb one.
+//
+// Watch on the rebuilt arm: J6 previously failed INTERMITTENTLY to reach its
+// rest position after homing ("WN: Failed to return to original position"),
+// landing ~86 deg out, then homed fine on the next run with no change.
+// Suspected binding (gripper wiring), a flaky limit switch, or missed steps.
+// Unclear whether the reassembly addressed it.
+//float CAL_OFFSET_DEG[NUM_JOINTS] = { 1.2, -0.8, 0, 0, 0, 0 };
+float CAL_OFFSET_DEG[NUM_JOINTS] = { 1.2, -0.8, -12, 0, 0, 0 };
+
 
 const int ESTOP_PIN = 39;
 const int STEP_PINS[] = { 0, 2, 4, 6, 8, 10 };

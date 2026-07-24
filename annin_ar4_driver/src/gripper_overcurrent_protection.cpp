@@ -8,86 +8,68 @@ GripperOverCurrentProtection::GripperOverCurrentProtection(
     const rclcpp::Logger& logger, const rclcpp::Clock& clock)
     : logger_(logger), clock_(clock) {}
 
-void GripperOverCurrentProtection::AddCurrentSample(const rclcpp::Time& time,
-                                                    double current) {
+void GripperOverCurrentProtection::AddCurrentSample(
+    const rclcpp::Time& /*time*/, double current) {
   current_ = current;
-
-  // Add the current sample to the sliding window
-  bool is_high_current = current_ > max_current_threshold_;
-  current_samples_.push_back({time, is_high_current});
-
-  // Remove samples older than the debounce window
-  while (!current_samples_.empty() &&
-         (time - current_samples_.front().timestamp).seconds() >
-             current_tracking_window_) {
-    current_samples_.pop_front();
-  }
-
-  // If there are no samples in the window, early exit
-  if (current_samples_.empty()) {
-    return;
-  }
-
-  // Calculate the percentage of high current samples in the window
-  int high_current_count = 0;
-  for (const auto& sample : current_samples_) {
-    if (sample.is_high_current) {
-      high_current_count++;
-    }
-  }
-  double high_current_percentage =
-      static_cast<double>(high_current_count) / current_samples_.size();
-
-  // Check if high current percentage exceeds threshold
-  if (high_current_percentage > overcurrent_percent_samples_) {
-    if (!overcurrent_) {
-      curr_adjust_amount_ = 0.0;
-      overcurrent_ = true;
-    }
-  }
-
-  if (overcurrent_) {
-    // If current levels are normalized, reset overcurrent flag
-    if (high_current_percentage <= recovery_percent_samples_) {
-      RCLCPP_INFO(
-          logger_,
-          "Current levels normalized: %.1f%% of measurements below threshold",
-          high_current_percentage * 100.0);
-      overcurrent_ = false;
-    } else {
-      RCLCPP_WARN_THROTTLE(
-          logger_, clock_, 1000,
-          "Gripper current (%.3f A) exceeded %f A for %.1f%% of time in "
-          "the last %.1f seconds",
-          current_, max_current_threshold_, high_current_percentage * 100.0,
-          current_tracking_window_);
-    }
-  }
 }
 
 double GripperOverCurrentProtection::AdjustGripperPosition(
-    double position_command, double min_position, double max_position) {
-  if (overcurrent_) {
-    curr_adjust_amount_ += overcurrent_position_increment_;
-    overcurrent_cmd_pos_ = position_command;
+    double position_command, double min_position, double max_position,
+    const rclcpp::Time& now) {
+  // Seed the output tracker on the first call so the ramp starts from wherever
+  // the gripper already is rather than snapping.
+  if (!output_init_) {
+    output_pos_ = position_command;
+    last_time_ = now;
+    output_init_ = true;
+    return output_pos_;
   }
 
-  double new_pos = position_command;
-  if (overcurrent_ || position_command <= overcurrent_cmd_pos_) {
-    new_pos = overcurrent_cmd_pos_ + curr_adjust_amount_;
-
-    // Clamp new position to joint limits
-    new_pos = std::clamp(new_pos, min_position, max_position);
+  double dt = (now - last_time_).seconds();
+  last_time_ = now;
+  // Guard against clock jumps / the very first cycles: fall back to a nominal
+  // step so a bad dt can't fling the command across the whole range at once.
+  if (dt <= 0.0 || dt > 0.5) {
+    dt = 0.02;
   }
 
-  if (new_pos != position_command) {
-    RCLCPP_WARN_THROTTLE(
-        logger_, clock_, 1000,
-        "Adjusted gripper position from %.4f to %.4f to reduce "
-        "current (now %.3f A)",
-        position_command, new_pos, current_);
+  const double range = max_position - min_position;
+  const bool commanded_closing =
+      (position_command - min_position) < grip_intent_fraction_ * range;
+
+  // Opening, or a command looser than where we already are: follow it straight
+  // through and re-arm the grasp. "Normal when opening."
+  if (position_command >= output_pos_ || !commanded_closing) {
+    output_pos_ = position_command;
+    grip_frozen_ = false;
+    high_streak_ = 0;
+    return output_pos_;
   }
-  return new_pos;
+
+  // Commanded to close further than we are. Watch the current for contact.
+  if (current_ > contact_current_threshold_) {
+    if (++high_streak_ >= contact_debounce_ && !grip_frozen_) {
+      grip_frozen_ = true;
+      RCLCPP_INFO(logger_,
+                  "Gripper contact at %.4f m (%.2f A) - holding grasp here "
+                  "instead of driving to full close (avoids rail brownout).",
+                  output_pos_, current_);
+    }
+  } else {
+    high_streak_ = 0;
+  }
+
+  // Clamped onto an object: hold this gentle contact position. Driving further
+  // closed is exactly what browns out the rail, so we don't.
+  if (grip_frozen_) {
+    return output_pos_;
+  }
+
+  // No contact yet: creep closed at the rate limit (never faster), so the
+  // current is sampled as it rises into contact rather than spiking past it.
+  const double step = close_velocity_ * dt;
+  output_pos_ = std::max(position_command, output_pos_ - step);
+  return output_pos_;
 }
 
 }  // namespace annin_ar4_driver
