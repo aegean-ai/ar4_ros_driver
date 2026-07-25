@@ -313,7 +313,8 @@
 
         X axis runs along the length of the table / plank.
         Robot sits at X=0, roughly left-third of the plank.
-        Plank center X = 0.2 (extends -0.4 to +0.8 relative to robot).
+        Plank size     = 1.218 x 0.285 x 0.04 m (121.8 x 28.5 x 4 cm board)
+        Plank center X = 0.2 (extends -0.409 to +0.809 relative to robot).
         Table center X = 0.2.
 
         Camera at Y=-1.6 looks in the +Y direction toward the robot.
@@ -454,7 +455,8 @@
     <!--
       Light pine/plywood board the robot is mounted on.
       Top surface at Z=0 so the robot (spawned at origin) sits on top.
-      Extends from X=-0.4 (left of robot) to X=+0.8 (right, where objects sit).
+      Real board: 121.8 cm x 28.5 cm x 4 cm.
+      Extends from X=-0.409 (left of robot) to X=+0.809 (right, where objects sit).
     -->
     <model name="wooden_plank">
       <static>true</static>
@@ -469,7 +471,7 @@
              High kp/kd prevents objects sinking when the gripper presses down. -->
         <collision name="collision">
           <pose>0 0 -0.10 0 0 0</pose>
-          <geometry><box><size>1.14 0.22 0.24</size></box></geometry>
+          <geometry><box><size>1.158 0.225 0.24</size></box></geometry>
           <surface>
             <friction><ode><mu>0.8</mu><mu2>0.8</mu2></ode></friction>
             <bounce><restitution_coefficient>0</restitution_coefficient><threshold>1e6</threshold></bounce>
@@ -480,7 +482,7 @@
           </surface>
         </collision>
         <visual name="visual">
-          <geometry><box><size>1.2 0.28 0.04</size></box></geometry>
+          <geometry><box><size>1.218 0.285 0.04</size></box></geometry>
           <material>
             <!-- Light pine / natural wood colour -->
             <ambient>0.72 0.55 0.33 1</ambient>
