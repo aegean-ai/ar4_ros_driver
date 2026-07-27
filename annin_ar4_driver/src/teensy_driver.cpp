@@ -144,7 +144,14 @@ bool TeensyDriver::park() {
   RCLCPP_INFO(logger_, "Sending park command");
 
   // Expect the Teensy to reply with PK acknowledgement.
-  return exchangeExpect(outMsg, "PK", 5000);
+  // The firmware's PK handler BLOCKS until the arm physically arrives, under its
+  // own 60 s ceiling — so this wait has to outlast that, not the serial round
+  // trip. At 5000 ms every normal park reported failure while the elbow was
+  // still moving (observed 2026-07-27: the service returned "no ack" with the
+  // arm sitting correctly at [0, 0, -90, 0, 0, 0]), and the late "PK" landed in
+  // the buffer with nobody reading it, where the next command can mistake it for
+  // its own reply. 65 s lets the firmware's timeout/ER surface first.
+  return exchangeExpect(outMsg, "PK", 65000);
 }
 
 
