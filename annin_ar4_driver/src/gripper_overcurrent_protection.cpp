@@ -10,7 +10,19 @@ GripperOverCurrentProtection::GripperOverCurrentProtection(
 
 void GripperOverCurrentProtection::AddCurrentSample(
     const rclcpp::Time& /*time*/, double current) {
-  current_ = current;
+  samples_[sample_idx_] = current;
+  sample_idx_ = (sample_idx_ + 1) % kFilterWindow;
+  if (sample_count_ < kFilterWindow) {
+    ++sample_count_;
+  }
+
+  // Median of the window rather than the raw sample: one ACS712 spike must not
+  // be able to read as contact. Sorting 3 doubles every read cycle is free.
+  std::array<double, kFilterWindow> sorted;
+  std::copy_n(samples_.begin(), sample_count_, sorted.begin());
+  std::sort(sorted.begin(), sorted.begin() + sample_count_);
+  prev_current_ = current_;
+  current_ = sorted[sample_count_ / 2];
 }
 
 double GripperOverCurrentProtection::AdjustGripperPosition(
@@ -46,17 +58,29 @@ double GripperOverCurrentProtection::AdjustGripperPosition(
     return output_pos_;
   }
 
-  // Commanded to close further than we are. Watch the current for contact.
-  if (current_ > contact_current_threshold_) {
-    if (++high_streak_ >= contact_debounce_ && !grip_frozen_) {
-      grip_frozen_ = true;
-      RCLCPP_INFO(logger_,
-                  "Gripper contact at %.4f m (%.2f A) - holding grasp here "
-                  "instead of driving to full close (avoids rail brownout).",
-                  output_pos_, current_);
-    }
-  } else {
-    high_streak_ = 0;
+  // Commanded to close further than we are. Watch the current for contact,
+  // either as an absolute level or as a sharp rise into a rigid object.
+  const bool over_threshold = current_ > contact_current_threshold_;
+  // The rise test needs a full window behind it: while the filter is still
+  // priming, prev_current_ is seeded at 0 and every sample looks like a jump.
+  const bool sharp_rise = sample_count_ == kFilterWindow &&
+                          (current_ - prev_current_) >= contact_rise_per_cycle_ &&
+                          current_ >= contact_rise_floor_;
+  // A sustained over-threshold reading needs the debounce; a sharp rise fires on
+  // the spot (see the header — a slope test cannot survive a debounce).
+  high_streak_ = over_threshold ? high_streak_ + 1 : 0;
+  if (!grip_frozen_ && (sharp_rise || high_streak_ >= contact_debounce_)) {
+    grip_frozen_ = true;
+    // Relax off the trip point: detection lags the touch, so output_pos_ is
+    // already past what the jaws can reach around the object. Commanding that
+    // blocked angle is the stall that browns out the rail — back off to an
+    // angle the servo can actually hold and let it clamp there.
+    output_pos_ = std::min(max_position, output_pos_ + contact_backoff_);
+    RCLCPP_INFO(logger_,
+                "Gripper contact at %.4f m (%.2f A, %s) - holding grasp here "
+                "instead of driving to full close (avoids rail brownout).",
+                output_pos_, current_,
+                over_threshold ? "over threshold" : "sharp rise");
   }
 
   // Clamped onto an object: hold this gentle contact position. Driving further
