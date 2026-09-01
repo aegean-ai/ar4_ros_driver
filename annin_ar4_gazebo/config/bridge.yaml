@@ -11,8 +11,10 @@
   gz_type_name: "ignition.msgs.Clock"
   direction: GZ_TO_ROS
 
-- ros_topic_name: "/wrist_camera/image"
-  gz_topic_name: "/wrist_camera/image"
+# Static overhead camera (high-oblique over the plank, matches the real tripod
+# EasyCam). Defined as a world model in the tabletop worlds, like scene_camera.
+- ros_topic_name: "/top_camera/image"
+  gz_topic_name: "/top_camera/image"
   ros_type_name: "sensor_msgs/msg/Image"
   gz_type_name: "gz.msgs.Image"
   direction: GZ_TO_ROS
@@ -22,8 +24,8 @@
     history: KEEP_LAST
     depth: 1
 
-- ros_topic_name: "/wrist_camera/camera_info"
-  gz_topic_name: "/wrist_camera/camera_info"
+- ros_topic_name: "/top_camera/camera_info"
+  gz_topic_name: "/top_camera/camera_info"
   ros_type_name: "sensor_msgs/msg/CameraInfo"
   gz_type_name: "gz.msgs.CameraInfo"
   direction: GZ_TO_ROS
