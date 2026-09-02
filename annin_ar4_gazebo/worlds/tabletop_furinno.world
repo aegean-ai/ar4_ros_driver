@@ -717,105 +717,109 @@
       </link>
     </model>
 
-    <!-- ===== FURINNO HERMITE SHELF (real-product twin, AURA-753) ===== -->
-    <model name="furinno_shelf">
+    <!-- ===== WALNUT SIDE TABLE (2-tier, replaces the Furinno Hermite) ===== -->
+    <model name="side_table">
       <static>true</static>
-      <!-- Real-product twin (AURA-753): Furinno Hermite 16.4x7.8x9.25in, grey oak,
-           10mm panels. Stands on its side panels; two shelf boards + usable top;
-           center divider splits the LOWER tier into two cubbies. Geometry mirrors
-           models/furinno_shelf/model.sdf (keep in sync).
-           Placement surfaces (world z): lower cubbies +0.025 (60mm clear — tight),
-           upper tier +0.095 (90mm clear), top surface +0.195 (open air). -->
+      <!-- Real rig's new shelf (2026-09-01): walnut-top 2-tier side table with
+           black legs, bought on Amazon. DIMENSIONS ARE ESTIMATES pending the
+           product listing: ratios measured from the pinned side reference frame
+           (L:H ~ 1.14, tier top at ~44% of height, ~30 mm slab), absolute scale
+           assumed H=0.45. Update sizes here AND the placement surfaces below +
+           the `shelves:` targets in sim_data_tasks_side_table.yaml (main repo)
+           when the listing numbers arrive.
+           Open on all four sides (no panels) — much friendlier insertion than
+           the Furinno cubbies. Placement surfaces (world z): lower tier +0.16
+           (~0.22 m clear under the top slab), top surface +0.41 (open air). -->
       <pose>0.30 -0.45 -0.04 0 0 0</pose>
       <link name="link">
 
-      <collision name="side_l_col">
-        <pose>-0.2035 0 0.1175 0 0 0</pose>
-        <geometry><box><size>0.010 0.198 0.235</size></box></geometry>
-        <surface><contact><collide_bitmask>0x0001</collide_bitmask></contact></surface>
-      </collision>
-      <visual name="side_l_vis">
-        <pose>-0.2035 0 0.1175 0 0 0</pose>
-        <geometry><box><size>0.010 0.198 0.235</size></box></geometry>
-        <material>
-          <ambient>0.45 0.44 0.42 1</ambient>
-          <diffuse>0.58 0.56 0.53 1</diffuse>
-          <specular>0.12 0.12 0.12 1</specular>
-        </material>
-      </visual>
-
-      <collision name="side_r_col">
-        <pose>0.2035 0 0.1175 0 0 0</pose>
-        <geometry><box><size>0.010 0.198 0.235</size></box></geometry>
-        <surface><contact><collide_bitmask>0x0001</collide_bitmask></contact></surface>
-      </collision>
-      <visual name="side_r_vis">
-        <pose>0.2035 0 0.1175 0 0 0</pose>
-        <geometry><box><size>0.010 0.198 0.235</size></box></geometry>
-        <material>
-          <ambient>0.45 0.44 0.42 1</ambient>
-          <diffuse>0.58 0.56 0.53 1</diffuse>
-          <specular>0.12 0.12 0.12 1</specular>
-        </material>
-      </visual>
-
       <collision name="top_col">
-        <pose>0 0 0.230 0 0 0</pose>
-        <geometry><box><size>0.417 0.198 0.010</size></box></geometry>
+        <pose>0 0 0.435 0 0 0</pose>
+        <geometry><box><size>0.510 0.350 0.030</size></box></geometry>
         <surface><contact><collide_bitmask>0x0001</collide_bitmask></contact></surface>
       </collision>
       <visual name="top_vis">
-        <pose>0 0 0.230 0 0 0</pose>
-        <geometry><box><size>0.417 0.198 0.010</size></box></geometry>
+        <pose>0 0 0.435 0 0 0</pose>
+        <geometry><box><size>0.510 0.350 0.030</size></box></geometry>
         <material>
-          <ambient>0.45 0.44 0.42 1</ambient>
-          <diffuse>0.58 0.56 0.53 1</diffuse>
-          <specular>0.12 0.12 0.12 1</specular>
+          <ambient>0.30 0.19 0.11 1</ambient>
+          <diffuse>0.42 0.27 0.16 1</diffuse>
+          <specular>0.15 0.15 0.15 1</specular>
         </material>
       </visual>
 
-      <collision name="mid_shelf_col">
-        <pose>0 0 0.130 0 0 0</pose>
-        <geometry><box><size>0.397 0.198 0.010</size></box></geometry>
+      <collision name="tier_col">
+        <pose>0 0 0.190 0 0 0</pose>
+        <geometry><box><size>0.470 0.310 0.020</size></box></geometry>
         <surface><contact><collide_bitmask>0x0001</collide_bitmask></contact></surface>
       </collision>
-      <visual name="mid_shelf_vis">
-        <pose>0 0 0.130 0 0 0</pose>
-        <geometry><box><size>0.397 0.198 0.010</size></box></geometry>
+      <visual name="tier_vis">
+        <pose>0 0 0.190 0 0 0</pose>
+        <geometry><box><size>0.470 0.310 0.020</size></box></geometry>
         <material>
-          <ambient>0.45 0.44 0.42 1</ambient>
-          <diffuse>0.58 0.56 0.53 1</diffuse>
-          <specular>0.12 0.12 0.12 1</specular>
+          <ambient>0.30 0.19 0.11 1</ambient>
+          <diffuse>0.42 0.27 0.16 1</diffuse>
+          <specular>0.15 0.15 0.15 1</specular>
         </material>
       </visual>
 
-      <collision name="low_shelf_col">
-        <pose>0 0 0.060 0 0 0</pose>
-        <geometry><box><size>0.397 0.198 0.010</size></box></geometry>
+      <collision name="leg_fl_col">
+        <pose>0.2225 0.1425 0.210 0 0 0</pose>
+        <geometry><box><size>0.025 0.025 0.420</size></box></geometry>
         <surface><contact><collide_bitmask>0x0001</collide_bitmask></contact></surface>
       </collision>
-      <visual name="low_shelf_vis">
-        <pose>0 0 0.060 0 0 0</pose>
-        <geometry><box><size>0.397 0.198 0.010</size></box></geometry>
+      <visual name="leg_fl_vis">
+        <pose>0.2225 0.1425 0.210 0 0 0</pose>
+        <geometry><box><size>0.025 0.025 0.420</size></box></geometry>
         <material>
-          <ambient>0.45 0.44 0.42 1</ambient>
-          <diffuse>0.58 0.56 0.53 1</diffuse>
-          <specular>0.12 0.12 0.12 1</specular>
+          <ambient>0.04 0.04 0.04 1</ambient>
+          <diffuse>0.08 0.08 0.08 1</diffuse>
+          <specular>0.15 0.15 0.15 1</specular>
         </material>
       </visual>
 
-      <collision name="divider_col">
-        <pose>0 0 0.0625 0 0 0</pose>
-        <geometry><box><size>0.010 0.198 0.125</size></box></geometry>
+      <collision name="leg_fr_col">
+        <pose>-0.2225 0.1425 0.210 0 0 0</pose>
+        <geometry><box><size>0.025 0.025 0.420</size></box></geometry>
         <surface><contact><collide_bitmask>0x0001</collide_bitmask></contact></surface>
       </collision>
-      <visual name="divider_vis">
-        <pose>0 0 0.0625 0 0 0</pose>
-        <geometry><box><size>0.010 0.198 0.125</size></box></geometry>
+      <visual name="leg_fr_vis">
+        <pose>-0.2225 0.1425 0.210 0 0 0</pose>
+        <geometry><box><size>0.025 0.025 0.420</size></box></geometry>
         <material>
-          <ambient>0.45 0.44 0.42 1</ambient>
-          <diffuse>0.58 0.56 0.53 1</diffuse>
-          <specular>0.12 0.12 0.12 1</specular>
+          <ambient>0.04 0.04 0.04 1</ambient>
+          <diffuse>0.08 0.08 0.08 1</diffuse>
+          <specular>0.15 0.15 0.15 1</specular>
+        </material>
+      </visual>
+
+      <collision name="leg_bl_col">
+        <pose>0.2225 -0.1425 0.210 0 0 0</pose>
+        <geometry><box><size>0.025 0.025 0.420</size></box></geometry>
+        <surface><contact><collide_bitmask>0x0001</collide_bitmask></contact></surface>
+      </collision>
+      <visual name="leg_bl_vis">
+        <pose>0.2225 -0.1425 0.210 0 0 0</pose>
+        <geometry><box><size>0.025 0.025 0.420</size></box></geometry>
+        <material>
+          <ambient>0.04 0.04 0.04 1</ambient>
+          <diffuse>0.08 0.08 0.08 1</diffuse>
+          <specular>0.15 0.15 0.15 1</specular>
+        </material>
+      </visual>
+
+      <collision name="leg_br_col">
+        <pose>-0.2225 -0.1425 0.210 0 0 0</pose>
+        <geometry><box><size>0.025 0.025 0.420</size></box></geometry>
+        <surface><contact><collide_bitmask>0x0001</collide_bitmask></contact></surface>
+      </collision>
+      <visual name="leg_br_vis">
+        <pose>-0.2225 -0.1425 0.210 0 0 0</pose>
+        <geometry><box><size>0.025 0.025 0.420</size></box></geometry>
+        <material>
+          <ambient>0.04 0.04 0.04 1</ambient>
+          <diffuse>0.08 0.08 0.08 1</diffuse>
+          <specular>0.15 0.15 0.15 1</specular>
         </material>
       </visual>
 
