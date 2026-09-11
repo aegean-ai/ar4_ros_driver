@@ -717,105 +717,136 @@
       </link>
     </model>
 
-    <!-- ===== FURINNO HERMITE SHELF (real-product twin, AURA-753) ===== -->
-    <model name="furinno_shelf">
+    <!-- ===== TASK SHELF: SONGMICS KCS020K01 spice rack ===== -->
+    <model name="side_table">
       <static>true</static>
-      <!-- Real-product twin (AURA-753): Furinno Hermite 16.4x7.8x9.25in, grey oak,
-           10mm panels. Stands on its side panels; two shelf boards + usable top;
-           center divider splits the LOWER tier into two cubbies. Geometry mirrors
-           models/furinno_shelf/model.sdf (keep in sync).
-           Placement surfaces (world z): lower cubbies +0.025 (60mm clear — tight),
-           upper tier +0.095 (90mm clear), top surface +0.195 (open air). -->
-      <pose>0.30 -0.45 -0.04 0 0 0</pose>
+      <!-- The rig's task shelf (replaces the Furinno Hermite). Confirmed product:
+           SONGMICS KCS020K01 "spice rack" / cabinet shelf organiser (sold in the US
+           as UKCS020K01, natural walnut board on a matte-black steel sled leg) — the
+           set is TWO separate units and the rig stacks them into the 2-tier shape
+           seen in data/camera_reference/2026-08-30/:
+             large unit UNDER: 0.297 x 0.195 x 0.155  (board surface at 0.155)
+             small unit ON TOP: 0.297 x 0.185 x 0.136 (board surface at 0.291)
+           Both boards are the same 0.297 length; only the depth differs, so the
+           LOWER board is the deeper one and the top is slightly inset — the reverse
+           of a side table. Overall 0.297 x 0.195 x 0.291, board thickness 0.015 (measured on the rig).
+           Dimensions are from the SONGMICS spec and the listing dimension diagram;
+           the board thickness is a tape measurement of the real rack, and only the
+           leg inset is measured off the artwork.
+           Cross-check: the pinned side reference frame puts the lower board surface
+           at 53% of overall height, the stacked spec says 0.155/0.291 = 53.3%.
+           Real legs are a closed steel sled loop at each end (inset ~8 mm from the
+           board ends); modelled as four corner posts spanning table -> underside of
+           the top board, which over-approximates the loop and keeps the ACM part
+           names stable.
+           Open on all four sides. Placement surfaces (world z, table at -0.040):
+           lower board +0.115, top board +0.251
+           (0.121 m clear between them).
+           POSITION IS DESIGNED FOR REACH, not measured (2026-09-10): the 2026-08-30
+           reference frames disagree with each other about where the real rack stood
+           (~0.25 m in X once projected through the sim camera poses), so instead the
+           pose was chosen by a collision-aware IK grid search (reach_study) over rack
+           centres x 0.30-0.60 / y -0.26..-0.45: x=0.42 y=-0.29 solves every insertion
+           pose (above/front/drop) on BOTH boards along the full board length
+           (object x = centre +-0.10) and at a deeper 0.09 inset. x>=0.50 loses the
+           far end of the boards (reach), x<=0.38 loses the near end (arm folds into
+           itself), y<=-0.44 drops the rack out of the top camera. Verified by
+           executing placements in sim. The REAL rig is to be laid out to match this:
+           rack footprint x 0.2715..0.5685, y -0.3875..-0.1925 (front edge 5.0 cm
+           behind the plank's far edge, near-base end 27 cm from the J1 axis along
+           the plank), long axis parallel to the plank, standing on the table.
+           These sizes are coupled to the `shelves:` targets in
+           sim_data_tasks_side_table.yaml (main repo) — change them together. -->
+      <pose>0.42 -0.29 -0.040 0 0 0</pose>
       <link name="link">
 
-      <collision name="side_l_col">
-        <pose>-0.2035 0 0.1175 0 0 0</pose>
-        <geometry><box><size>0.010 0.198 0.235</size></box></geometry>
-        <surface><contact><collide_bitmask>0x0001</collide_bitmask></contact></surface>
-      </collision>
-      <visual name="side_l_vis">
-        <pose>-0.2035 0 0.1175 0 0 0</pose>
-        <geometry><box><size>0.010 0.198 0.235</size></box></geometry>
-        <material>
-          <ambient>0.45 0.44 0.42 1</ambient>
-          <diffuse>0.58 0.56 0.53 1</diffuse>
-          <specular>0.12 0.12 0.12 1</specular>
-        </material>
-      </visual>
-
-      <collision name="side_r_col">
-        <pose>0.2035 0 0.1175 0 0 0</pose>
-        <geometry><box><size>0.010 0.198 0.235</size></box></geometry>
-        <surface><contact><collide_bitmask>0x0001</collide_bitmask></contact></surface>
-      </collision>
-      <visual name="side_r_vis">
-        <pose>0.2035 0 0.1175 0 0 0</pose>
-        <geometry><box><size>0.010 0.198 0.235</size></box></geometry>
-        <material>
-          <ambient>0.45 0.44 0.42 1</ambient>
-          <diffuse>0.58 0.56 0.53 1</diffuse>
-          <specular>0.12 0.12 0.12 1</specular>
-        </material>
-      </visual>
-
       <collision name="top_col">
-        <pose>0 0 0.230 0 0 0</pose>
-        <geometry><box><size>0.417 0.198 0.010</size></box></geometry>
+        <pose>0 0 0.2835 0 0 0</pose>
+        <geometry><box><size>0.297 0.185 0.015</size></box></geometry>
         <surface><contact><collide_bitmask>0x0001</collide_bitmask></contact></surface>
       </collision>
       <visual name="top_vis">
-        <pose>0 0 0.230 0 0 0</pose>
-        <geometry><box><size>0.417 0.198 0.010</size></box></geometry>
+        <pose>0 0 0.2835 0 0 0</pose>
+        <geometry><box><size>0.297 0.185 0.015</size></box></geometry>
         <material>
-          <ambient>0.45 0.44 0.42 1</ambient>
-          <diffuse>0.58 0.56 0.53 1</diffuse>
-          <specular>0.12 0.12 0.12 1</specular>
+          <ambient>0.30 0.19 0.11 1</ambient>
+          <diffuse>0.42 0.27 0.16 1</diffuse>
+          <specular>0.15 0.15 0.15 1</specular>
         </material>
       </visual>
 
-      <collision name="mid_shelf_col">
-        <pose>0 0 0.130 0 0 0</pose>
-        <geometry><box><size>0.397 0.198 0.010</size></box></geometry>
+      <collision name="tier_col">
+        <pose>0 0 0.1475 0 0 0</pose>
+        <geometry><box><size>0.297 0.195 0.015</size></box></geometry>
         <surface><contact><collide_bitmask>0x0001</collide_bitmask></contact></surface>
       </collision>
-      <visual name="mid_shelf_vis">
-        <pose>0 0 0.130 0 0 0</pose>
-        <geometry><box><size>0.397 0.198 0.010</size></box></geometry>
+      <visual name="tier_vis">
+        <pose>0 0 0.1475 0 0 0</pose>
+        <geometry><box><size>0.297 0.195 0.015</size></box></geometry>
         <material>
-          <ambient>0.45 0.44 0.42 1</ambient>
-          <diffuse>0.58 0.56 0.53 1</diffuse>
-          <specular>0.12 0.12 0.12 1</specular>
+          <ambient>0.30 0.19 0.11 1</ambient>
+          <diffuse>0.42 0.27 0.16 1</diffuse>
+          <specular>0.15 0.15 0.15 1</specular>
         </material>
       </visual>
 
-      <collision name="low_shelf_col">
-        <pose>0 0 0.060 0 0 0</pose>
-        <geometry><box><size>0.397 0.198 0.010</size></box></geometry>
+      <collision name="leg_fl_col">
+        <pose>0.1345 0.0915 0.1380 0 0 0</pose>
+        <geometry><box><size>0.012 0.012 0.276</size></box></geometry>
         <surface><contact><collide_bitmask>0x0001</collide_bitmask></contact></surface>
       </collision>
-      <visual name="low_shelf_vis">
-        <pose>0 0 0.060 0 0 0</pose>
-        <geometry><box><size>0.397 0.198 0.010</size></box></geometry>
+      <visual name="leg_fl_vis">
+        <pose>0.1345 0.0915 0.1380 0 0 0</pose>
+        <geometry><box><size>0.012 0.012 0.276</size></box></geometry>
         <material>
-          <ambient>0.45 0.44 0.42 1</ambient>
-          <diffuse>0.58 0.56 0.53 1</diffuse>
-          <specular>0.12 0.12 0.12 1</specular>
+          <ambient>0.04 0.04 0.04 1</ambient>
+          <diffuse>0.08 0.08 0.08 1</diffuse>
+          <specular>0.15 0.15 0.15 1</specular>
         </material>
       </visual>
 
-      <collision name="divider_col">
-        <pose>0 0 0.0625 0 0 0</pose>
-        <geometry><box><size>0.010 0.198 0.125</size></box></geometry>
+      <collision name="leg_fr_col">
+        <pose>-0.1345 0.0915 0.1380 0 0 0</pose>
+        <geometry><box><size>0.012 0.012 0.276</size></box></geometry>
         <surface><contact><collide_bitmask>0x0001</collide_bitmask></contact></surface>
       </collision>
-      <visual name="divider_vis">
-        <pose>0 0 0.0625 0 0 0</pose>
-        <geometry><box><size>0.010 0.198 0.125</size></box></geometry>
+      <visual name="leg_fr_vis">
+        <pose>-0.1345 0.0915 0.1380 0 0 0</pose>
+        <geometry><box><size>0.012 0.012 0.276</size></box></geometry>
         <material>
-          <ambient>0.45 0.44 0.42 1</ambient>
-          <diffuse>0.58 0.56 0.53 1</diffuse>
-          <specular>0.12 0.12 0.12 1</specular>
+          <ambient>0.04 0.04 0.04 1</ambient>
+          <diffuse>0.08 0.08 0.08 1</diffuse>
+          <specular>0.15 0.15 0.15 1</specular>
+        </material>
+      </visual>
+
+      <collision name="leg_bl_col">
+        <pose>0.1345 -0.0915 0.1380 0 0 0</pose>
+        <geometry><box><size>0.012 0.012 0.276</size></box></geometry>
+        <surface><contact><collide_bitmask>0x0001</collide_bitmask></contact></surface>
+      </collision>
+      <visual name="leg_bl_vis">
+        <pose>0.1345 -0.0915 0.1380 0 0 0</pose>
+        <geometry><box><size>0.012 0.012 0.276</size></box></geometry>
+        <material>
+          <ambient>0.04 0.04 0.04 1</ambient>
+          <diffuse>0.08 0.08 0.08 1</diffuse>
+          <specular>0.15 0.15 0.15 1</specular>
+        </material>
+      </visual>
+
+      <collision name="leg_br_col">
+        <pose>-0.1345 -0.0915 0.1380 0 0 0</pose>
+        <geometry><box><size>0.012 0.012 0.276</size></box></geometry>
+        <surface><contact><collide_bitmask>0x0001</collide_bitmask></contact></surface>
+      </collision>
+      <visual name="leg_br_vis">
+        <pose>-0.1345 -0.0915 0.1380 0 0 0</pose>
+        <geometry><box><size>0.012 0.012 0.276</size></box></geometry>
+        <material>
+          <ambient>0.04 0.04 0.04 1</ambient>
+          <diffuse>0.08 0.08 0.08 1</diffuse>
+          <specular>0.15 0.15 0.15 1</specular>
         </material>
       </visual>
 
