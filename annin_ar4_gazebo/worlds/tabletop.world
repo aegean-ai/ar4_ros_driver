@@ -22,7 +22,7 @@
         <background_color>0.8 0.8 0.8</background_color>
         <!-- GUI 3D view starts from the scene/wall camera's vantage (matches the
              scene_camera model pose) so the operator sees what the scene camera records. -->
-        <camera_pose>0.30 0.72 0.65 0 0.30 -1.5708</camera_pose>
+        <camera_pose>0.41 0.88 0.23 0 0.02 -1.5708</camera_pose>
         <camera_clip>
           <near>0.25</near>
           <far>25000</far>
@@ -888,7 +888,7 @@
     <!-- White painted wall behind the robot setup -->
     <model name="back_wall">
       <static>true</static>
-      <pose>0.2 0.75 0.23 0 0 0</pose>
+      <pose>0.2 1.30 0.23 0 0 0</pose>
       <link name="link">
         <collision name="collision">
           <geometry><box><size>3.5 0.02 2.0</size></box></geometry>
@@ -920,14 +920,33 @@
       </link>
     </model>
 
-    <!-- ===== AXIS SCENE CAMERA (third-person) =====
-         Mirrors the real lab: an Axis camera wall-mounted parallel to the table,
-         to the side of the arm. Mounted on the +Y wall looking across the table
-         in -Y, so it sees the pick area (+Y) → arm → bookshelf (-Y) in profile.
+    <!-- Far wall (-Y): the backdrop the SIDE camera sees behind the arm/shelf,
+         mirroring the white wall behind the real setup. -->
+    <model name="far_wall">
+      <static>true</static>
+      <pose>0.2 -1.50 0.23 0 0 0</pose>
+      <link name="link">
+        <visual name="visual">
+          <geometry><box><size>3.5 0.02 2.0</size></box></geometry>
+          <material>
+            <ambient>0.92 0.92 0.92 1</ambient>
+            <diffuse>0.95 0.95 0.95 1</diffuse>
+            <specular>0.05 0.05 0.05 1</specular>
+          </material>
+        </visual>
+      </link>
+    </model>
+
+    <!-- ===== SIDE SCENE CAMERA (third-person) =====
+         Mirrors the real rig: a tripod-mounted Logitech C920 just above table
+         height on the +Y side, looking across the table in -Y, nearly
+         horizontal — plank in profile, arm at the right edge of frame.
+         Pose kept in sync with tabletop_furinno.world (the real-match world,
+         where the pose is overlay-verified against the pinned reference frames).
          Publishes /scene_camera/image (bridged in config/bridge.yaml). -->
     <model name="scene_camera">
       <static>true</static>
-      <pose>0.30 0.72 0.65 0 0.30 -1.5708</pose>
+      <pose>0.41 0.88 0.23 0 0.02 -1.5708</pose>
       <link name="link">
         <visual name="body">
           <geometry><box><size>0.06 0.04 0.04</size></box></geometry>
@@ -940,12 +959,44 @@
           <always_on>true</always_on>
           <update_rate>15</update_rate>
           <camera>
-            <horizontal_fov>1.4</horizontal_fov>
+            <horizontal_fov>1.15</horizontal_fov>
             <image><width>640</width><height>480</height><format>R8G8B8</format></image>
             <clip><near>0.05</near><far>12.0</far></clip>
           </camera>
           <topic>/scene_camera/image</topic>
           <gz_frame_id>scene_camera</gz_frame_id>
+        </sensor>
+      </link>
+    </model>
+
+    <!-- ===== TOP CAMERA (high-oblique overhead) =====
+         Mirrors the real rig: a tripod-mounted EasyCam above the +X end of the
+         plank on the +Y side, pitched steeply down (high-oblique, not true
+         top-down — a photo tripod cannot sit over the table).
+         Pose kept in sync with tabletop_furinno.world (the real-match world,
+         where the pose is overlay-verified against the pinned reference frames).
+         Publishes /top_camera/image (bridged in config/bridge.yaml). -->
+    <model name="top_camera">
+      <static>true</static>
+      <pose>0.45 0.42 0.64 0 0.90 -1.95</pose>
+      <link name="link">
+        <visual name="body">
+          <geometry><box><size>0.06 0.04 0.04</size></box></geometry>
+          <material>
+            <ambient>0.05 0.05 0.05 1</ambient>
+            <diffuse>0.10 0.10 0.10 1</diffuse>
+          </material>
+        </visual>
+        <sensor name="top_camera" type="camera">
+          <always_on>true</always_on>
+          <update_rate>15</update_rate>
+          <camera>
+            <horizontal_fov>1.15</horizontal_fov>
+            <image><width>640</width><height>480</height><format>R8G8B8</format></image>
+            <clip><near>0.05</near><far>12.0</far></clip>
+          </camera>
+          <topic>/top_camera/image</topic>
+          <gz_frame_id>top_camera</gz_frame_id>
         </sensor>
       </link>
     </model>
