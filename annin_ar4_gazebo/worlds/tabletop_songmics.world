@@ -1,7 +1,9 @@
 <?xml version="1.0"?>
-<!-- tabletop_furinno.world — variant of tabletop.world with the real-product
-     Furinno Hermite shelf twin instead of the synthetic bookshelf (AURA-753).
-     Everything else (table, plank, objects, cameras, physics) is identical. -->
+<!-- tabletop_songmics.world: variant of tabletop_furinno.world with the rig's
+     current task shelf, the stacked SONGMICS KCS020K01 spice rack, in place of
+     the Furinno Hermite twin. Everything else (table, plank, objects, cameras,
+     physics) is identical. tabletop_furinno.world is kept as it was so the
+     Furinno campaigns and their evals stay reproducible. -->
 <sdf version="1.6">
   <world name="default">
     <physics name="1ms" type="ignored">
@@ -25,7 +27,7 @@
         <background_color>0.8 0.8 0.8</background_color>
         <!-- GUI 3D view starts from the scene/wall camera's vantage (matches the
              scene_camera model pose) so the operator sees what the scene camera records. -->
-        <camera_pose>0.30 0.72 0.65 0 0.30 -1.5708</camera_pose>
+        <camera_pose>0.41 0.88 0.23 0 0.02 -1.5708</camera_pose>
         <camera_clip>
           <near>0.25</near>
           <far>25000</far>
@@ -316,7 +318,8 @@
 
         X axis runs along the length of the table / plank.
         Robot sits at X=0, roughly left-third of the plank.
-        Plank center X = 0.2 (extends -0.4 to +0.8 relative to robot).
+        Plank size     = 1.218 x 0.285 x 0.04 m (121.8 x 28.5 x 4 cm board)
+        Plank center X = 0.2 (extends -0.409 to +0.809 relative to robot).
         Table center X = 0.2.
 
         Camera at Y=-1.6 looks in the +Y direction toward the robot.
@@ -457,7 +460,8 @@
     <!--
       Light pine/plywood board the robot is mounted on.
       Top surface at Z=0 so the robot (spawned at origin) sits on top.
-      Extends from X=-0.4 (left of robot) to X=+0.8 (right, where objects sit).
+      Real board: 121.8 cm x 28.5 cm x 4 cm.
+      Extends from X=-0.409 (left of robot) to X=+0.809 (right, where objects sit).
     -->
     <model name="wooden_plank">
       <static>true</static>
@@ -472,7 +476,7 @@
              High kp/kd prevents objects sinking when the gripper presses down. -->
         <collision name="collision">
           <pose>0 0 -0.10 0 0 0</pose>
-          <geometry><box><size>1.14 0.22 0.24</size></box></geometry>
+          <geometry><box><size>1.158 0.225 0.24</size></box></geometry>
           <surface>
             <friction><ode><mu>0.8</mu><mu2>0.8</mu2></ode></friction>
             <bounce><restitution_coefficient>0</restitution_coefficient><threshold>1e6</threshold></bounce>
@@ -483,7 +487,7 @@
           </surface>
         </collision>
         <visual name="visual">
-          <geometry><box><size>1.2 0.28 0.04</size></box></geometry>
+          <geometry><box><size>1.218 0.285 0.04</size></box></geometry>
           <material>
             <!-- Light pine / natural wood colour -->
             <ambient>0.72 0.55 0.33 1</ambient>
@@ -715,105 +719,137 @@
       </link>
     </model>
 
-    <!-- ===== FURINNO HERMITE SHELF (real-product twin, AURA-753) ===== -->
-    <model name="furinno_shelf">
+    <!-- ===== TASK SHELF: SONGMICS KCS020K01 spice rack ===== -->
+    <model name="side_table">
       <static>true</static>
-      <!-- Real-product twin (AURA-753): Furinno Hermite 16.4x7.8x9.25in, grey oak,
-           10mm panels. Stands on its side panels; two shelf boards + usable top;
-           center divider splits the LOWER tier into two cubbies. Geometry mirrors
-           models/furinno_shelf/model.sdf (keep in sync).
-           Placement surfaces (world z): lower cubbies +0.025 (60mm clear — tight),
-           upper tier +0.095 (90mm clear), top surface +0.195 (open air). -->
-      <pose>0.30 -0.45 -0.04 0 0 0</pose>
+      <!-- The rig's task shelf (the Furinno Hermite's successor on the real rig;
+           the model id `side_table` is historical). Confirmed product:
+           SONGMICS KCS020K01 "spice rack" / cabinet shelf organiser (sold in the US
+           as UKCS020K01, natural walnut board on a matte-black steel sled leg) — the
+           set is TWO separate units and the rig stacks them into the 2-tier shape
+           seen in data/camera_reference/2026-08-30/:
+             large unit UNDER: 0.297 x 0.195 x 0.155  (board surface at 0.155)
+             small unit ON TOP: 0.297 x 0.185 x 0.136 (board surface at 0.291)
+           Both boards are the same 0.297 length; only the depth differs, so the
+           LOWER board is the deeper one and the top is slightly inset — the reverse
+           of a side table. Overall 0.297 x 0.195 x 0.291, board thickness 0.015 (measured on the rig).
+           Dimensions are from the SONGMICS spec and the listing dimension diagram;
+           the board thickness is a tape measurement of the real rack, and only the
+           leg inset is measured off the artwork.
+           Cross-check: the pinned side reference frame puts the lower board surface
+           at 53% of overall height, the stacked spec says 0.155/0.291 = 53.3%.
+           Real legs are a closed steel sled loop at each end (inset ~8 mm from the
+           board ends); modelled as four corner posts spanning table -> underside of
+           the top board, which over-approximates the loop and keeps the ACM part
+           names stable.
+           Open on all four sides. Placement surfaces (world z, table at -0.040):
+           lower board +0.115, top board +0.251
+           (0.121 m clear between them).
+           POSITION IS DESIGNED FOR REACH, not measured (2026-09-10): the 2026-08-30
+           reference frames disagree with each other about where the real rack stood
+           (~0.25 m in X once projected through the sim camera poses), so instead the
+           pose was chosen by a collision-aware IK grid search (reach_study) over rack
+           centres x 0.30-0.60 / y -0.26..-0.45: x=0.42 y=-0.29 solves every insertion
+           pose (above/front/drop) on BOTH boards along the full board length
+           (object x = centre +-0.10) and at a deeper 0.09 inset. x>=0.50 loses the
+           far end of the boards (reach), x<=0.38 loses the near end (arm folds into
+           itself), y<=-0.44 drops the rack out of the top camera. Verified by
+           executing placements in sim. The REAL rig is to be laid out to match this:
+           rack footprint x 0.2715..0.5685, y -0.3875..-0.1925 (front edge 5.0 cm
+           behind the plank's far edge, near-base end 27 cm from the J1 axis along
+           the plank), long axis parallel to the plank, standing on the table.
+           These sizes are coupled to the `shelves:` targets in
+           sim_data_tasks_side_table.yaml (main repo) — change them together. -->
+      <pose>0.42 -0.29 -0.040 0 0 0</pose>
       <link name="link">
 
-      <collision name="side_l_col">
-        <pose>-0.2035 0 0.1175 0 0 0</pose>
-        <geometry><box><size>0.010 0.198 0.235</size></box></geometry>
-        <surface><contact><collide_bitmask>0x0001</collide_bitmask></contact></surface>
-      </collision>
-      <visual name="side_l_vis">
-        <pose>-0.2035 0 0.1175 0 0 0</pose>
-        <geometry><box><size>0.010 0.198 0.235</size></box></geometry>
-        <material>
-          <ambient>0.45 0.44 0.42 1</ambient>
-          <diffuse>0.58 0.56 0.53 1</diffuse>
-          <specular>0.12 0.12 0.12 1</specular>
-        </material>
-      </visual>
-
-      <collision name="side_r_col">
-        <pose>0.2035 0 0.1175 0 0 0</pose>
-        <geometry><box><size>0.010 0.198 0.235</size></box></geometry>
-        <surface><contact><collide_bitmask>0x0001</collide_bitmask></contact></surface>
-      </collision>
-      <visual name="side_r_vis">
-        <pose>0.2035 0 0.1175 0 0 0</pose>
-        <geometry><box><size>0.010 0.198 0.235</size></box></geometry>
-        <material>
-          <ambient>0.45 0.44 0.42 1</ambient>
-          <diffuse>0.58 0.56 0.53 1</diffuse>
-          <specular>0.12 0.12 0.12 1</specular>
-        </material>
-      </visual>
-
       <collision name="top_col">
-        <pose>0 0 0.230 0 0 0</pose>
-        <geometry><box><size>0.417 0.198 0.010</size></box></geometry>
+        <pose>0 0 0.2835 0 0 0</pose>
+        <geometry><box><size>0.297 0.185 0.015</size></box></geometry>
         <surface><contact><collide_bitmask>0x0001</collide_bitmask></contact></surface>
       </collision>
       <visual name="top_vis">
-        <pose>0 0 0.230 0 0 0</pose>
-        <geometry><box><size>0.417 0.198 0.010</size></box></geometry>
+        <pose>0 0 0.2835 0 0 0</pose>
+        <geometry><box><size>0.297 0.185 0.015</size></box></geometry>
         <material>
-          <ambient>0.45 0.44 0.42 1</ambient>
-          <diffuse>0.58 0.56 0.53 1</diffuse>
-          <specular>0.12 0.12 0.12 1</specular>
+          <ambient>0.30 0.19 0.11 1</ambient>
+          <diffuse>0.42 0.27 0.16 1</diffuse>
+          <specular>0.15 0.15 0.15 1</specular>
         </material>
       </visual>
 
-      <collision name="mid_shelf_col">
-        <pose>0 0 0.130 0 0 0</pose>
-        <geometry><box><size>0.397 0.198 0.010</size></box></geometry>
+      <collision name="tier_col">
+        <pose>0 0 0.1475 0 0 0</pose>
+        <geometry><box><size>0.297 0.195 0.015</size></box></geometry>
         <surface><contact><collide_bitmask>0x0001</collide_bitmask></contact></surface>
       </collision>
-      <visual name="mid_shelf_vis">
-        <pose>0 0 0.130 0 0 0</pose>
-        <geometry><box><size>0.397 0.198 0.010</size></box></geometry>
+      <visual name="tier_vis">
+        <pose>0 0 0.1475 0 0 0</pose>
+        <geometry><box><size>0.297 0.195 0.015</size></box></geometry>
         <material>
-          <ambient>0.45 0.44 0.42 1</ambient>
-          <diffuse>0.58 0.56 0.53 1</diffuse>
-          <specular>0.12 0.12 0.12 1</specular>
+          <ambient>0.30 0.19 0.11 1</ambient>
+          <diffuse>0.42 0.27 0.16 1</diffuse>
+          <specular>0.15 0.15 0.15 1</specular>
         </material>
       </visual>
 
-      <collision name="low_shelf_col">
-        <pose>0 0 0.060 0 0 0</pose>
-        <geometry><box><size>0.397 0.198 0.010</size></box></geometry>
+      <collision name="leg_fl_col">
+        <pose>0.1345 0.0915 0.1380 0 0 0</pose>
+        <geometry><box><size>0.012 0.012 0.276</size></box></geometry>
         <surface><contact><collide_bitmask>0x0001</collide_bitmask></contact></surface>
       </collision>
-      <visual name="low_shelf_vis">
-        <pose>0 0 0.060 0 0 0</pose>
-        <geometry><box><size>0.397 0.198 0.010</size></box></geometry>
+      <visual name="leg_fl_vis">
+        <pose>0.1345 0.0915 0.1380 0 0 0</pose>
+        <geometry><box><size>0.012 0.012 0.276</size></box></geometry>
         <material>
-          <ambient>0.45 0.44 0.42 1</ambient>
-          <diffuse>0.58 0.56 0.53 1</diffuse>
-          <specular>0.12 0.12 0.12 1</specular>
+          <ambient>0.04 0.04 0.04 1</ambient>
+          <diffuse>0.08 0.08 0.08 1</diffuse>
+          <specular>0.15 0.15 0.15 1</specular>
         </material>
       </visual>
 
-      <collision name="divider_col">
-        <pose>0 0 0.0625 0 0 0</pose>
-        <geometry><box><size>0.010 0.198 0.125</size></box></geometry>
+      <collision name="leg_fr_col">
+        <pose>-0.1345 0.0915 0.1380 0 0 0</pose>
+        <geometry><box><size>0.012 0.012 0.276</size></box></geometry>
         <surface><contact><collide_bitmask>0x0001</collide_bitmask></contact></surface>
       </collision>
-      <visual name="divider_vis">
-        <pose>0 0 0.0625 0 0 0</pose>
-        <geometry><box><size>0.010 0.198 0.125</size></box></geometry>
+      <visual name="leg_fr_vis">
+        <pose>-0.1345 0.0915 0.1380 0 0 0</pose>
+        <geometry><box><size>0.012 0.012 0.276</size></box></geometry>
         <material>
-          <ambient>0.45 0.44 0.42 1</ambient>
-          <diffuse>0.58 0.56 0.53 1</diffuse>
-          <specular>0.12 0.12 0.12 1</specular>
+          <ambient>0.04 0.04 0.04 1</ambient>
+          <diffuse>0.08 0.08 0.08 1</diffuse>
+          <specular>0.15 0.15 0.15 1</specular>
+        </material>
+      </visual>
+
+      <collision name="leg_bl_col">
+        <pose>0.1345 -0.0915 0.1380 0 0 0</pose>
+        <geometry><box><size>0.012 0.012 0.276</size></box></geometry>
+        <surface><contact><collide_bitmask>0x0001</collide_bitmask></contact></surface>
+      </collision>
+      <visual name="leg_bl_vis">
+        <pose>0.1345 -0.0915 0.1380 0 0 0</pose>
+        <geometry><box><size>0.012 0.012 0.276</size></box></geometry>
+        <material>
+          <ambient>0.04 0.04 0.04 1</ambient>
+          <diffuse>0.08 0.08 0.08 1</diffuse>
+          <specular>0.15 0.15 0.15 1</specular>
+        </material>
+      </visual>
+
+      <collision name="leg_br_col">
+        <pose>-0.1345 -0.0915 0.1380 0 0 0</pose>
+        <geometry><box><size>0.012 0.012 0.276</size></box></geometry>
+        <surface><contact><collide_bitmask>0x0001</collide_bitmask></contact></surface>
+      </collision>
+      <visual name="leg_br_vis">
+        <pose>-0.1345 -0.0915 0.1380 0 0 0</pose>
+        <geometry><box><size>0.012 0.012 0.276</size></box></geometry>
+        <material>
+          <ambient>0.04 0.04 0.04 1</ambient>
+          <diffuse>0.08 0.08 0.08 1</diffuse>
+          <specular>0.15 0.15 0.15 1</specular>
         </material>
       </visual>
 
@@ -824,7 +860,7 @@
     <!-- White painted wall behind the robot setup -->
     <model name="back_wall">
       <static>true</static>
-      <pose>0.2 0.75 0.23 0 0 0</pose>
+      <pose>0.2 1.30 0.23 0 0 0</pose>
       <link name="link">
         <collision name="collision">
           <geometry><box><size>3.5 0.02 2.0</size></box></geometry>
@@ -856,14 +892,34 @@
       </link>
     </model>
 
-    <!-- ===== AXIS SCENE CAMERA (third-person) =====
-         Mirrors the real lab: an Axis camera wall-mounted parallel to the table,
-         to the side of the arm. Mounted on the +Y wall looking across the table
-         in -Y, so it sees the pick area (+Y) → arm → shelf (-Y) in profile.
+    <!-- Far wall (-Y): the backdrop the SIDE camera sees behind the arm/shelf,
+         mirroring the white wall behind the real setup. -->
+    <model name="far_wall">
+      <static>true</static>
+      <pose>0.2 -1.50 0.23 0 0 0</pose>
+      <link name="link">
+        <visual name="visual">
+          <geometry><box><size>3.5 0.02 2.0</size></box></geometry>
+          <material>
+            <ambient>0.92 0.92 0.92 1</ambient>
+            <diffuse>0.95 0.95 0.95 1</diffuse>
+            <specular>0.05 0.05 0.05 1</specular>
+          </material>
+        </visual>
+      </link>
+    </model>
+
+    <!-- ===== SIDE SCENE CAMERA (third-person) =====
+         Mirrors the real rig: a tripod-mounted Logitech C920 just above table
+         height on the +Y side, looking across the table in -Y, nearly
+         horizontal. It sees the plank in profile: shelf left (far), pick
+         objects center-left, arm base fully in frame at the right edge.
+         Pose/FOV matched by HOME-pose overlay against the pinned reference
+         frame data/camera_reference/2026-08-30/pinned_side.png (main repo).
          Publishes /scene_camera/image (bridged in config/bridge.yaml). -->
     <model name="scene_camera">
       <static>true</static>
-      <pose>0.30 0.72 0.65 0 0.30 -1.5708</pose>
+      <pose>0.41 0.88 0.23 0 0.02 -1.5708</pose>
       <link name="link">
         <visual name="body">
           <geometry><box><size>0.06 0.04 0.04</size></box></geometry>
@@ -876,7 +932,7 @@
           <always_on>true</always_on>
           <update_rate>15</update_rate>
           <camera>
-            <horizontal_fov>1.4</horizontal_fov>
+            <horizontal_fov>1.15</horizontal_fov>
             <image><width>640</width><height>480</height><format>R8G8B8</format></image>
             <clip><near>0.05</near><far>12.0</far></clip>
           </camera>
@@ -887,12 +943,7 @@
     </model>
 
     <!-- ===== TOP CAMERA (high-oblique overhead) =====
-         The only real-rig measurement in this world. Everything else (plank,
-         scene camera, walls) is kept as the v5-v10 Furinno datasets were
-         recorded; the rig measurements live in tabletop_songmics.world. The
-         wrist camera these datasets used is gone from the URDF, so this camera
-         is here only so the current two-camera pipeline can run in this world.
-         Pose copied from tabletop_songmics.world, which mirrors the real rig: a tripod-mounted EasyCam above the +X end of the
+         Mirrors the real rig: a tripod-mounted EasyCam above the +X end of the
          plank on the +Y side, pitched steeply down. A photo tripod cannot sit
          directly over the table, so this is deliberately high-oblique, not
          true top-down. It sees the plank filling the frame diagonally, arm
