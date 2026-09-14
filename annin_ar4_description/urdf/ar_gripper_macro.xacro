@@ -110,12 +110,19 @@
       </inertial>
     </link>
 
+    <!-- Jaw effort limit (both jaws): 20 N. Only Gazebo uses it; the servo hardware
+         interface ignores <limit effort>. With the recorder's full close (AURA-811),
+         unlimited effort drove the position-controlled jaws 10-13 mm into the object
+         and the contact solve shoved or ejected it: about half the grasps missed. 20 N
+         gave 23/24 grasps across all six objects on 2026-09-13; 10 N barely closed the
+         jaws and 40 N was unstable again. The real HPS-3518SG gripper squeezes an
+         estimated 50-75 N per jaw, so this is a stability setting, not a force match. -->
     <joint name="${tf_prefix}gripper_jaw1_joint" type="prismatic">
       <origin xyz="0.0 -0.036 0" rpy="0.0 0.0 0.0"/>
       <parent link="${tf_prefix}gripper_base_link"/>
       <child link="${tf_prefix}gripper_jaw1_link"/>
       <axis xyz="-1 0 0"/>
-      <limit lower="0" upper="0.014" effort="-1" velocity="1.0"/>
+      <limit lower="0" upper="0.014" effort="20" velocity="1.0"/>
     </joint>
 
     <joint name="${tf_prefix}gripper_jaw2_joint" type="prismatic">
@@ -123,7 +130,7 @@
       <parent link="${tf_prefix}gripper_base_link"/>
       <child link="${tf_prefix}gripper_jaw2_link"/>
       <axis xyz="-1 0 0"/>
-      <limit lower="0" upper="0.014" effort="1000" velocity="1.0"/>
+      <limit lower="0" upper="0.014" effort="20" velocity="1.0"/>
       <mimic joint="${tf_prefix}gripper_jaw1_joint" multiplier="1" offset="0"/>
     </joint>
 
