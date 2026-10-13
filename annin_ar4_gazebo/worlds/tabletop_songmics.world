@@ -6,8 +6,12 @@
      Furinno campaigns and their evals stay reproducible. -->
 <sdf version="1.6">
   <world name="default">
-    <physics name="1ms" type="ignored">
-      <max_step_size>0.001</max_step_size>
+    <!-- 2 ms steps (2026-10-12; was 1 ms): with six free objects and the arm, 1 ms steps ran at a real-time
+         factor of ~0.6 on a laptop GPU, and the cameras (which render on sim time) fell to 18 Hz. At 2 ms the
+         factor is 1.0 and the 30 Hz cameras are honest. The grasp was re-verified at 2 ms with the LeRobot
+         autopilot (ar4_lerobot). -->
+    <physics name="2ms" type="ignored">
+      <max_step_size>0.002</max_step_size>
       <real_time_factor>1.0</real_time_factor>
     </physics>
 
@@ -543,9 +547,10 @@
         <visual name="visual">
           <geometry><box><size>0.023 0.020 0.022</size></box></geometry>
           <material>
-            <ambient>0.00 0.60 0.70 1</ambient>
-            <diffuse>0.00 0.72 0.82 1</diffuse>
-            <specular>0.30 0.60 0.70 1</specular>
+            <!-- blue, matching the printed cube on the rig (2026-10-12; was teal 0.00 0.60 0.70) -->
+            <ambient>0.05 0.20 0.80 1</ambient>
+            <diffuse>0.10 0.30 0.90 1</diffuse>
+            <specular>0.30 0.40 0.70 1</specular>
           </material>
         </visual>
       </link>
@@ -555,9 +560,13 @@
          All cross-section dims (23 mm and 20 mm) < 27.6 mm jaw gap, so the block
          is graspable from all four vertical sides.  Previous size (40 x 22 x 18 mm)
          had a 40 mm face that exceeded the jaw opening — only 2 of 4 sides worked. -->
+    <!-- block_purple home moved 2026-10-13 from (0.43, -0.02): that was exactly start spot E of the
+         ar4_lerobot cube_top_shelf task (x 0.34..0.44, y -0.04..0.10), so every spawn there collided
+         with it and the autopilot once carried it onto the shelf for a whole 50-episode batch.
+         (0.50, -0.03) is 6 cm clear of the start box and 10 cm from the orange block. -->
     <model name="block_purple">
       <static>false</static>
-      <pose>0.43 -0.02 0.011 0 0 0</pose>
+      <pose>0.50 -0.03 0.011 0 0 0</pose>
       <link name="link">
         <inertial>
           <mass>0.1</mass>
@@ -714,7 +723,8 @@
         </collision>
         <visual name="visual">
           <geometry><mesh><uri>file:///ar4_ws/install/annin_ar4_gazebo/share/annin_ar4_gazebo/meshes/tri_prism.stl</uri></mesh></geometry>
-          <material><ambient>0.20 0.30 0.75 1</ambient><diffuse>0.25 0.40 0.90 1</diffuse><specular>0.3 0.3 0.6 1</specular></material>
+          <!-- white, matte (printed in white filament; was blue, which clashed with the blue cube, 2026-10-12) -->
+          <material><ambient>0.85 0.85 0.83 1</ambient><diffuse>0.92 0.92 0.90 1</diffuse><specular>0.1 0.1 0.1 1</specular></material>
         </visual>
       </link>
     </model>
@@ -930,7 +940,7 @@
         </visual>
         <sensor name="scene_camera" type="camera">
           <always_on>true</always_on>
-          <update_rate>15</update_rate>
+          <update_rate>30</update_rate>
           <camera>
             <horizontal_fov>1.15</horizontal_fov>
             <image><width>640</width><height>480</height><format>R8G8B8</format></image>
@@ -964,7 +974,7 @@
         </visual>
         <sensor name="top_camera" type="camera">
           <always_on>true</always_on>
-          <update_rate>15</update_rate>
+          <update_rate>30</update_rate>
           <camera>
             <horizontal_fov>1.15</horizontal_fov>
             <image><width>640</width><height>480</height><format>R8G8B8</format></image>
