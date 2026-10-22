@@ -46,6 +46,12 @@ hardware_interface::CallbackReturn ARServoGripperHWInterface::on_init(
       RCLCPP_INFO(logger_, "Overcurrent protection enabled for gripper");
       overcurrent_protection_ =
           std::make_unique<GripperOverCurrentProtection>(logger_, clock_);
+      if (info_.hardware_parameters.count("contact_current_threshold") > 0) {
+        overcurrent_protection_->SetContactCurrentThreshold(
+            std::stod(info_.hardware_parameters.at("contact_current_threshold")));
+      }
+      RCLCPP_INFO(logger_, "Gripper contact current threshold: %.2f A",
+                  overcurrent_protection_->contact_current_threshold());
     }
   }
 
@@ -155,6 +161,13 @@ hardware_interface::return_type ARServoGripperHWInterface::read(
 
     logInfo += " | Current: " + std::to_string(current_);
     overcurrent_protection_->AddCurrentSample(time, current_);
+    // The servo current as the Nano reports it, 4 Hz: the only readout of the
+    // ACS712 while the driver holds the port, and what the contact threshold
+    // in gripper_driver.yaml is tuned against. DEBUG so a normal run's log
+    // stays quiet: tune with `--ros-args --log-level annin_ar4_driver:=debug`.
+    RCLCPP_DEBUG_THROTTLE(logger_, clock_, 250,
+                          "Gripper servo %.2f A at %.4f m (cmd %.4f m)",
+                         current_, position_, position_command_);
   }
 
   RCLCPP_DEBUG_THROTTLE(logger_, clock_, 500, logInfo.c_str());

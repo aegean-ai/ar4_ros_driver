@@ -3,4 +3,13 @@ joint_2: -42.0
 joint_3: -89.0
 joint_4: -180.0
 joint_5: -105.0
-joint_6: -180.0
+# joint_6: -180 is the upstream default. Measured on this arm with the jaw line
+# square across the plank at HOME (new = old - reported_square):
+#   2026-10-20  square at a reported -50 with -180  -> -130
+#   2026-10-21  square at a reported -15 with -130  -> -115  (fresh calibration)
+#   2026-10-21  square at a reported -100 with -115 -> -15   (power-cycled, fresh calibration)
+# So J6's calibration zero is NOT repeatable across power cycles (35 deg between
+# two days): re-measure at every calibration (jog_joint.py --hardware joint_6 N,
+# then edit here and recreate the driver with CALIBRATE=False, which keeps the
+# Teensy's zero) until the J6 limit switch/home routine is sorted out.
+joint_6: -15.0

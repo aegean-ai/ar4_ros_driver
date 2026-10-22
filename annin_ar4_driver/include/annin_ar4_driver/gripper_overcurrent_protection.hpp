@@ -40,6 +40,18 @@ class GripperOverCurrentProtection {
   double AdjustGripperPosition(double position_command, double min_position,
                                double max_position, const rclcpp::Time& now);
 
+  // Override the contact threshold (Amps, as the Nano reports it) from the
+  // `contact_current_threshold` hardware parameter in gripper_driver.yaml.
+  // The ACS712 reading carries a supply-dependent offset (the Nano converts
+  // with a fixed 2.5 V zero), so the right value is a property of the rig's
+  // wiring, not of the servo alone: tune it from the driver's current log.
+  void SetContactCurrentThreshold(double amps) {
+    contact_current_threshold_ = amps;
+  }
+  double contact_current_threshold() const {
+    return contact_current_threshold_;
+  }
+
  private:
   double current_ = 0.0;  // median-filtered, see AddCurrentSample
 
