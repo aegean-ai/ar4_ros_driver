@@ -1,5 +1,18 @@
 use_overcurrent_protection: true
 
+# Contact current (Amps, AS THE NANO REPORTS IT): closing stops and holds where
+# the servo draw crosses this. It must sit above the draw of merely moving the
+# empty jaws and below the ~2.2 A (real) stall that browns out the 5 V rail on
+# the coreless HPS-3518SG. The reading is NOT absolute: the Nano converts the
+# ACS712 with a fixed 2.5 V zero, so whatever powers the sensor vs the Nano's
+# ADC reference shifts every reading by a constant (2026-10-20, Nano on laptop
+# USB: idle at the open stop read ~2.0 A where the 2026-07-27 bench read ~0.7).
+# Tune it from the driver log ("Gripper servo X A at Y m", 4 Hz) on THIS wiring.
+# 2026-10-20 (laptop USB): empty jaws read 1.45 A mid-travel up to 2.43 A at the
+# open stop with no brownout, so the collapse point is above 2.43 here; 2.6 sits
+# just above free motion. Signed off by the user 2026-10-20.
+contact_current_threshold: 2.6
+
 # Servo angle configuration (in degrees)
 # Retuned live on the real gripper (2026-07-24) after swapping to a Hiwonder
 # HPS-3518SG coreless servo. Its horn indexes differently from the previous
