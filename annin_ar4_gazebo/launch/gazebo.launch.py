@@ -123,7 +123,10 @@ def generate_launch_description():
         executable="spawner",
         arguments=[
             "joint_state_broadcaster", "-c", "/controller_manager",
-            "--controller-manager-timeout", "60"
+            "--controller-manager-timeout", "60",
+            # The first physics steps after the spawn are slow (world + render init); at the default 5 s the
+            # activation of joint_trajectory_controller timed out at boot and the controller stayed inactive.
+            "--switch-timeout", "60",
         ],
     )
 
@@ -133,7 +136,10 @@ def generate_launch_description():
         executable="spawner",
         arguments=[
             "joint_trajectory_controller", "-c", "/controller_manager",
-            "--controller-manager-timeout", "60"
+            "--controller-manager-timeout", "60",
+            # The first physics steps after the spawn are slow (world + render init); at the default 5 s the
+            # activation of joint_trajectory_controller timed out at boot and the controller stayed inactive.
+            "--switch-timeout", "60",
         ],
     )
 
@@ -142,7 +148,10 @@ def generate_launch_description():
         executable="spawner",
         arguments=[
             "gripper_controller", "-c", "/controller_manager",
-            "--controller-manager-timeout", "60"
+            "--controller-manager-timeout", "60",
+            # The first physics steps after the spawn are slow (world + render init); at the default 5 s the
+            # activation of joint_trajectory_controller timed out at boot and the controller stayed inactive.
+            "--switch-timeout", "60",
         ],
     )
 
