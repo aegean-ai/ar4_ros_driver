@@ -515,14 +515,14 @@
          Placed closer to the robot (X=0.43) to avoid overlap with the orange block. -->
     <model name="block_teal">
       <static>false</static>
-      <pose>0.38 0.06 0.011 0 0 0</pose>
+      <pose>0.49 0.07 0.010 0 0 0</pose>
       <link name="link">
         <inertial>
           <mass>0.1</mass>
           <inertia>
-            <ixx>7.37e-6</ixx><ixy>0</ixy><ixz>0</ixz>
-            <iyy>8.44e-6</iyy><iyz>0</iyz>
-            <izz>7.74e-6</izz>
+            <ixx>6.67e-6</ixx><ixy>0</ixy><ixz>0</ixz>
+            <iyy>6.67e-6</iyy><iyz>0</iyz>
+            <izz>6.67e-6</izz>
           </inertia>
         </inertial>
         <!-- kp/kd matched to jaw surfaces (200000/100) — symmetric stiffness prevents
@@ -537,7 +537,7 @@
           <angular>5.0</angular>
         </velocity_decay>
         <collision name="collision">
-          <geometry><box><size>0.023 0.020 0.022</size></box></geometry>
+          <geometry><box><size>0.020 0.020 0.020</size></box></geometry>
           <surface>
             <friction><ode><mu>2.5</mu><mu2>2.5</mu2></ode></friction>
             <bounce><restitution_coefficient>0</restitution_coefficient><threshold>1e6</threshold></bounce>
@@ -545,7 +545,7 @@
           </surface>
         </collision>
         <visual name="visual">
-          <geometry><box><size>0.023 0.020 0.022</size></box></geometry>
+          <geometry><box><size>0.020 0.020 0.020</size></box></geometry>
           <material>
             <!-- blue, matching the printed cube on the rig (2026-10-12; was teal 0.00 0.60 0.70) -->
             <ambient>0.05 0.20 0.80 1</ambient>
@@ -566,14 +566,14 @@
          (0.50, -0.03) is 6 cm clear of the start box and 10 cm from the orange block. -->
     <model name="block_purple">
       <static>false</static>
-      <pose>0.50 -0.03 0.011 0 0 0</pose>
+      <pose>0.50 -0.03 0.010 0 0 0</pose>
       <link name="link">
         <inertial>
           <mass>0.1</mass>
           <inertia>
-            <ixx>7.37e-6</ixx><ixy>0</ixy><ixz>0</ixz>
-            <iyy>8.44e-6</iyy><iyz>0</iyz>
-            <izz>7.74e-6</izz>
+            <ixx>6.67e-6</ixx><ixy>0</ixy><ixz>0</ixz>
+            <iyy>6.67e-6</iyy><iyz>0</iyz>
+            <izz>6.67e-6</izz>
           </inertia>
         </inertial>
         <!-- angular decay 5.0 → exp(-5) ≈ 0.7% remaining per second.
@@ -585,7 +585,7 @@
           <angular>5.0</angular>
         </velocity_decay>
         <collision name="collision">
-          <geometry><box><size>0.023 0.020 0.022</size></box></geometry>
+          <geometry><box><size>0.020 0.020 0.020</size></box></geometry>
           <surface>
             <friction><ode><mu>2.5</mu><mu2>2.5</mu2></ode></friction>
             <bounce><restitution_coefficient>0</restitution_coefficient><threshold>1e6</threshold></bounce>
@@ -593,7 +593,7 @@
           </surface>
         </collision>
         <visual name="visual">
-          <geometry><box><size>0.023 0.020 0.022</size></box></geometry>
+          <geometry><box><size>0.020 0.020 0.020</size></box></geometry>
           <material>
             <ambient>0.55 0.00 0.70 1</ambient>
             <diffuse>0.62 0.08 0.80 1</diffuse>
@@ -606,14 +606,14 @@
     <!-- Orange block - 23×20×22 mm, same geometry as purple/teal. -->
     <model name="block_orange">
       <static>false</static>
-      <pose>0.49 0.07 0.011 0 0 0</pose>
+      <pose>0.38 0.06 0.010 0 0 0</pose>
       <link name="link">
         <inertial>
           <mass>0.1</mass>
           <inertia>
-            <ixx>7.37e-6</ixx><ixy>0</ixy><ixz>0</ixz>
-            <iyy>8.44e-6</iyy><iyz>0</iyz>
-            <izz>7.74e-6</izz>
+            <ixx>6.67e-6</ixx><ixy>0</ixy><ixz>0</ixz>
+            <iyy>6.67e-6</iyy><iyz>0</iyz>
+            <izz>6.67e-6</izz>
           </inertia>
         </inertial>
         <!-- angular decay 5.0 → exp(-5) ≈ 0.7% remaining per second.
@@ -625,7 +625,7 @@
           <angular>5.0</angular>
         </velocity_decay>
         <collision name="collision">
-          <geometry><box><size>0.023 0.020 0.022</size></box></geometry>
+          <geometry><box><size>0.020 0.020 0.020</size></box></geometry>
           <surface>
             <friction><ode><mu>2.5</mu><mu2>2.5</mu2></ode></friction>
             <bounce><restitution_coefficient>0</restitution_coefficient><threshold>1e6</threshold></bounce>
@@ -633,7 +633,7 @@
           </surface>
         </collision>
         <visual name="visual">
-          <geometry><box><size>0.023 0.020 0.022</size></box></geometry>
+          <geometry><box><size>0.020 0.020 0.020</size></box></geometry>
           <material>
             <ambient>0.90 0.40 0.00 1</ambient>
             <diffuse>0.95 0.52 0.00 1</diffuse>
