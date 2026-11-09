@@ -8,8 +8,12 @@ joint_5: -105.0
 #   2026-10-20  square at a reported -50 with -180  -> -130
 #   2026-10-21  square at a reported -15 with -130  -> -115  (fresh calibration)
 #   2026-10-21  square at a reported -100 with -115 -> -15   (power-cycled, fresh calibration)
-# So J6's calibration zero is NOT repeatable across power cycles (35 deg between
-# two days): re-measure at every calibration (jog_joint.py --hardware joint_6 N,
-# then edit here and recreate the driver with CALIBRATE=False, which keeps the
-# Teensy's zero) until the J6 limit switch/home routine is sorted out.
-joint_6: -15.0
+#   2026-10-27  0.0: the calibrated pose reads +180 and HOME rolls J6 to a reading of 0;
+#               every arm run and teleop set since then was recorded with this value
+# 0.0 is the value to keep (2026-11-09): at HOME it leaves the flat face of the
+# gripper on top, where the wrist camera will mount.
+# J6's calibration zero has NOT been repeatable across power cycles (35 deg between
+# two days in October), so check the jaw line at HOME after every calibration. If it
+# is off: jog_joint.py --hardware joint_6 N, edit here, and recreate the driver with
+# CALIBRATE=False, which keeps the Teensy's zero.
+joint_6: 0.0
