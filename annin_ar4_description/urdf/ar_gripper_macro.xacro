@@ -17,7 +17,7 @@
           <mesh filename="file://$(find annin_ar4_description)/meshes/ar4_gripper/gripper_base_link.stl" />
         </geometry>
         <material name="">
-          <color rgba="0.627 0.627 0.627 1.0"/>
+          <color rgba="0.01 0.10 0.52 1.0"/>
         </material>
       </visual>
       <!-- Rear mounting body (Y = +0.001 to +0.019). -->
@@ -60,7 +60,7 @@
           <mesh filename="file://$(find annin_ar4_description)/meshes/ar4_gripper/gripper_jaw1_link.stl" />
         </geometry>
         <material name="">
-          <color rgba="0.078 0.078 0.078 1.0"/>
+          <color rgba="0.03 0.27 0.46 1.0"/>
         </material>
       </visual>
       <!-- Main jaw body.  Inner grasping face stays at X ≈ 0 (unchanged from
@@ -90,7 +90,7 @@
           <mesh filename="file://$(find annin_ar4_description)/meshes/ar4_gripper/gripper_jaw2_link.stl" />
         </geometry>
         <material name="">
-          <color rgba="0.078 0.078 0.078 1.0"/>
+          <color rgba="0.03 0.27 0.46 1.0"/>
         </material>
       </visual>
       <!-- Main jaw body — mirrors jaw1.  Inner face stays at base-frame X ≈ 0;

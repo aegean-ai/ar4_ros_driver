@@ -37,7 +37,7 @@
       <mesh filename="package://annin_ar4_description/meshes/${robot_parameters['mesh_dir']}/Link_Base_Aluminum.STL"/>
     </geometry>
     <material name="base_aluminum_mat">
-      <color rgba="0.863 0.863 0.863 1.0"/>
+      <color rgba="0.45 0.45 0.46 1.0"/>
     </material>
   </visual>
 
@@ -113,7 +113,7 @@
       <mesh filename="package://annin_ar4_description/meshes/${robot_parameters['mesh_dir']}/Link_1_Aluminum.STL"/>
     </geometry>
     <material name="link1_aluminum_mat">
-      <color rgba="0.863 0.863 0.863 1.0"/>
+      <color rgba="0.45 0.45 0.46 1.0"/>
     </material>
   </visual>
 
@@ -195,7 +195,7 @@
       <mesh filename="package://annin_ar4_description/meshes/${robot_parameters['mesh_dir']}/Link_2_Aluminum.STL"/>
     </geometry>
     <material name="link2_aluminum_mat">
-      <color rgba="0.863 0.863 0.863 1.0"/>
+      <color rgba="0.45 0.45 0.46 1.0"/>
     </material>
   </visual>
 
@@ -241,7 +241,7 @@
       <mesh filename="package://annin_ar4_description/meshes/${robot_parameters['mesh_dir']}/Link_2_Cover.STL"/>
     </geometry>
     <material name="link2_cover_mat">
-      <color rgba="0 0.35 1 1"/>
+      <color rgba="0.05 0.25 0.50 1"/>
     </material>
   </visual>
 </link>
@@ -307,7 +307,7 @@
       <mesh filename="package://annin_ar4_description/meshes/${robot_parameters['mesh_dir']}/Link_3_Aluminum.STL"/>
     </geometry>
     <material name="link3_aluminum_mat">
-      <color rgba="0.863 0.863 0.863 1.0"/>
+      <color rgba="0.45 0.45 0.46 1.0"/>
     </material>
   </visual>
 
@@ -380,7 +380,7 @@
       <mesh filename="package://annin_ar4_description/meshes/${robot_parameters['mesh_dir']}/Link_4_Aluminum.STL"/>
     </geometry>
     <material name="link4_aluminum_mat">
-      <color rgba="0.863 0.863 0.863 1.0"/>
+      <color rgba="0.45 0.45 0.46 1.0"/>
     </material>
   </visual>
 
@@ -424,7 +424,7 @@
       <mesh filename="package://annin_ar4_description/meshes/${robot_parameters['mesh_dir']}/Link_4_Cover.STL"/>
     </geometry>
     <material name="link4_cover_mat">
-      <color rgba="0 0.35 1 1"/>
+      <color rgba="0.05 0.25 0.50 1"/>
     </material>
   </visual>
 </link>
@@ -490,7 +490,7 @@
       <mesh filename="package://annin_ar4_description/meshes/${robot_parameters['mesh_dir']}/Link_5_Aluminum.STL"/>
     </geometry>
     <material name="aluminum_mat">
-     <color rgba="0.863 0.863 0.863 1.0"/>
+     <color rgba="0.45 0.45 0.46 1.0"/>
    </material>
   </visual>
 
